@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/atotto/clipboard"
 	"github.com/davecgh/go-spew/spew"
 	redmine "github.com/mattn/go-redmine"
 	"github.com/spf13/cobra"
@@ -90,9 +91,25 @@ func contain(haystack []string, needle string) bool {
 }
 
 func createIssue() error {
-	issue, err := issueFromEditor("")
+	var err error
+	var issue *redmine.Issue
+
+	clipboardText, err := clipboard.ReadAll()
 	if err != nil {
 		return err
+	}
+	// clipboard が 2 行以下 = クリップボードにパスワードが入っている可能性がありとみなして
+	// clipboardText は使わない。
+	if len(strings.Split(clipboardText, "\n")) <= 2 {
+		issue, err = issueFromEditor("")
+		if err != nil {
+			return err
+		}
+	} else {
+		issue, err = issueFromEditor(clipboardText)
+		if err != nil {
+			return err
+		}
 	}
 	spew.Dump(issue)
 	// c := redmine.NewClient(conf.Endpoint, conf.Apikey)
