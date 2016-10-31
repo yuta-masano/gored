@@ -58,7 +58,7 @@ func runGored(cmd *cobra.Command, argv []string) error {
 		return nil
 	}
 	if len(argv) < 1 {
-		return fmt.Errorf("specify project_id to add a new issue\n")
+		return errors.New("specify project_id to add a new issue\n")
 	}
 	if !contain(trackerTable, tracker) {
 		return fmt.Errorf("%s is invalid tracker\n", tracker)
@@ -113,13 +113,13 @@ func issueFromEditor(contents string) (*redmine.Issue, error) {
 
 	editor := getEditor()
 	if contents == "" {
-		contents = `### Single Line Subject  ###
+		contents = `### Single Line Subject ###
 ### Start Description ###
 `
 	}
 	file.Write([]byte(contents))
 	defer file.Close()
-	if err := run([]string{editor, file.Name()}); err != nil {
+	if err := run(editor, file.Name()); err != nil {
 		return nil, err
 	}
 	b, err := ioutil.ReadFile(file.Name())
@@ -135,6 +135,7 @@ func issueFromEditor(contents string) (*redmine.Issue, error) {
 	if len(lines) == 0 {
 		return nil, errors.New("Canceled")
 	}
+
 	var subject, description string
 	if len(lines) == 1 {
 		subject = lines[0]
@@ -144,6 +145,7 @@ func issueFromEditor(contents string) (*redmine.Issue, error) {
 	var issue redmine.Issue
 	issue.Subject = subject
 	issue.Description = description
+
 	return &issue, nil
 }
 
@@ -159,32 +161,26 @@ func getEditor() string {
 	return editor
 }
 
-func run(args []string) error {
-	cmd, err := exec.LookPath(args[0])
+func run(editor, file string) error {
+	cmd, err := exec.LookPath(editor)
 	if err != nil {
 		return err
 	}
+	// [linux - Trying to launch an external editor from within a Go program - Stack Overflow]
+	// http://stackoverflow.com/questions/12088138/trying-to-launch-an-external-editor-from-within-a-go-program/12089980#12089980
+	editorCmd := exec.Command(cmd, file)
 	var stdin *os.File
 	if runtime.GOOS == "windows" {
 		stdin, _ = os.Open("CONIN$")
 	} else {
 		stdin = os.Stdin
 	}
-	p, err := os.StartProcess(cmd, args, &os.ProcAttr{Files: []*os.File{
-		stdin,
-		os.Stdout,
-		os.Stderr,
-	}})
-	if err != nil {
+	editorCmd.Stdin, editorCmd.Stdout, editorCmd.Stderr = stdin, os.Stdout, os.Stderr
+	if err := editorCmd.Start(); err != nil {
 		return err
 	}
-	defer p.Release()
-	w, err := p.Wait()
-	if err != nil {
+	if err := editorCmd.Wait(); err != nil {
 		return err
-	}
-	if !w.Exited() || !w.Success() {
-		return errors.New("Failed to execute text editor")
 	}
 	return nil
 }
