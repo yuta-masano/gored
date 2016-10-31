@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
@@ -106,14 +105,11 @@ func createIssue() error {
 }
 
 func issueFromEditor(contents string) (*redmine.Issue, error) {
-	file := ""
-	newf := fmt.Sprintf("%d.txt", rand.Int())
-	if runtime.GOOS == "windows" {
-		file = filepath.Join(os.Getenv("APPDATA"), ".config", "gored", newf)
-	} else {
-		file = filepath.Join(os.Getenv("HOME"), ".config", "gored", newf)
+	file, err := ioutil.TempFile("", ".gored.")
+	if err != nil {
+		return nil, err
 	}
-	defer os.Remove(file)
+	defer os.Remove(file.Name())
 
 	editor := getEditor()
 
@@ -122,16 +118,13 @@ func issueFromEditor(contents string) (*redmine.Issue, error) {
 ### Description Here ###
 `
 	}
-
-	if err := mkdir(filepath.Dir(file)); err != nil {
-		return nil, err
-	}
-	ioutil.WriteFile(file, []byte(contents), 0600)
-	if err := run([]string{editor, file}); err != nil {
+	file.Write([]byte(contents))
+	defer file.Close()
+	if err := run([]string{editor, file.Name()}); err != nil {
 		return nil, err
 	}
 
-	b, err := ioutil.ReadFile(file)
+	b, err := ioutil.ReadFile(file.Name())
 	if err != nil {
 		return nil, err
 	}
