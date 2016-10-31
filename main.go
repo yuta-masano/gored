@@ -36,9 +36,10 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "gored project_id",
-	Short: `gored adds a new issue using your clipboard text, returns the added issue pages's title and URL.`,
-	RunE:  runGored,
+	Use: "gored project_id",
+	Short: `gored adds a new issue using your clipboard text,
+returns the added issue pages's title and URL.`,
+	RunE: runGored,
 }
 
 func init() {
@@ -50,13 +51,13 @@ func init() {
 		fmt.Sprint("choose ", strings.Join(priorityTable, ", ")))
 }
 
-func runGored(cmd *cobra.Command, args []string) error {
+func runGored(cmd *cobra.Command, argv []string) error {
 	if version {
 		fmt.Printf("version: %s\nbuild at: %s\nwith: %s\n",
 			buildVersion, buildDate, buildWith)
 		return nil
 	}
-	if len(args) < 1 {
+	if len(argv) < 1 {
 		return fmt.Errorf("specify project_id to add a new issue\n")
 	}
 	if !contain(trackerTable, tracker) {
@@ -70,7 +71,6 @@ func runGored(cmd *cobra.Command, args []string) error {
 	if err := createIssue(); err != nil {
 		return fmt.Errorf("%s\n", err)
 	}
-
 	return nil
 }
 
@@ -122,13 +122,12 @@ func issueFromEditor(contents string) (*redmine.Issue, error) {
 	if err := run([]string{editor, file.Name()}); err != nil {
 		return nil, err
 	}
-
 	b, err := ioutil.ReadFile(file.Name())
 	if err != nil {
 		return nil, err
 	}
-	text := string(b)
 
+	text := string(b)
 	if text == contents {
 		return nil, errors.New("Canceled")
 	}
