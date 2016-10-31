@@ -112,10 +112,9 @@ func issueFromEditor(contents string) (*redmine.Issue, error) {
 	defer os.Remove(file.Name())
 
 	editor := getEditor()
-
 	if contents == "" {
-		contents = `### Subject Here ###
-### Description Here ###
+		contents = `### Single Line Subject  ###
+### Start Description ###
 `
 	}
 	file.Write([]byte(contents))
