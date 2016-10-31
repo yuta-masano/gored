@@ -66,7 +66,7 @@ install: deps-install ## install the binary
 
 .PHONY: lint
 lint: install ## lint go sources and check whether only LICENSE file has copyright sentence
-	gometalinter --deadline=60s --exclude=cryptographic $(shell glide novendor)
+	gometalinter --enable-all --deadline=60s $(shell glide novendor)
 	$(TOOL_DIR)/copyright-check.sh
 
 .PHONY: test
