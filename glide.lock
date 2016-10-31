@@ -1,0 +1,18 @@
+hash: 47ef17893a6f0b5398b2c44e763b8535d2c9392580ecb2766bf85184d897373d
+updated: 2016-10-31T17:36:06.580413366+09:00
+imports:
+- name: github.com/atotto/clipboard
+  version: bb272b845f1112e10117e3e45ce39f690c0001ad
+- name: github.com/davecgh/go-spew
+  version: 346938d642f2ec3594ed81d874461961cd0faa76
+  subpackages:
+  - spew
+- name: github.com/inconshreveable/mousetrap
+  version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
+- name: github.com/mattn/go-redmine
+  version: c79b9003293d0bc1ce53c9d9bda23e1e41f77402
+- name: github.com/spf13/cobra
+  version: 6e91dded25d73176bf7f60b40dd7aa1f0bf9be8d
+- name: github.com/spf13/pflag
+  version: 5ccb023bc27df288a957c5e994cd44fd19619465
+testImports: []

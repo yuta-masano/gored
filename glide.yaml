@@ -1,0 +1,5 @@
+package: github.com/yuta-masano/gored
+import:
+- package: github.com/spf13/cobra
+- package: github.com/mattn/go-redmine
+- package: github.com/atotto/clipboard
