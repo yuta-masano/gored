@@ -59,7 +59,7 @@ const sendClipboardText = ` [{{.Issue.Tracker.Name}} #{{.Issue.ID}} - {{.Issue.P
  {{.Cfg.Endpoint}}/issues/{{.Issue.ID}}`
 
 var rootCmd = &cobra.Command{
-	Use: "gored project_id",
+	Use: "gored project_identifier",
 	Short: `gored adds a new issue using your clipboard text,
 returns the added issue pages's title and URL.`,
 	RunE: runGored,
