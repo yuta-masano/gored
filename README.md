@@ -45,7 +45,7 @@ $ go get github.com/yuta-masano/gored
    ```
    $ gored -t 'バグ' -p 'normal' project_identifier
    ```
-4. チケット登録に成功すると、以下の通りそのチケットのタイトルと URL が clipboard に追加される。
+4. チケット登録に成功すると、以下のようなそのチケットのタイトルと URL が clipboard に追加される。
    ```
    [バグ #1234: ユーザ情報更新時に確認ポップアップが表示されない -  XXXX_プロジェクト - Redmine]
    https://redmine.example.com/issues/1234
@@ -55,15 +55,16 @@ $ go get github.com/yuta-masano/gored
 
 ```
 $ gored --help
-gored adds a new issue using your clipboard text,
-returns the added issue pages's title and URL.
+gored creates a new issue on Redmine using your clipboard text,
+sends the added issue page's title and URL into your clipboard.
 
 Usage:
-  gored project_id [flags]
+  gored project_identifier [flags]
 
 Flags:
   -p, --priority string   choose Low, Normal, High (default "Normal")
   -t, --tracker string    choose 情報更新, バグ, 機能, サポート (default "バグ")
+  -v, --version           show program's version number and exit
 ```
 
 ## License
