@@ -8,7 +8,7 @@ gored は CLI ベースの Redmine 新規チケット作成ツールです。
 * チケットの「題名」、「説明」はコマンド実行時に起動するエディタで編集可能です。
 * このとき、clipboard の内容が自動的に「説明」として扱われます。
 
-* チケット登録に成功するとそのチケットと URL を stdout に出力します。
+* チケット登録に成功するとそのチケットのタイトルと URL を clipboard に追加します。
 
 * 引数でプロジェクト ID を指定します。
 * オプションで「トラッカー」、「優先度」が指定できます。
@@ -29,14 +29,23 @@ $ go get github.com/yuta-masano/gored
 
 ## Usage
 
-1. 先にメールの内容を clipboard に登録しておく。
-2. そのまま以下を実行。
+1. $HOME/.config/gored/config.yml または $HOME/.config/gored/config.json で以下を定義する。以下は config.yml の例。
    ```
-   $ gored -t 'バグ' -s 'ユーザ情報更新時に確認ポップアップが表示されない' -p 'normal' project_id
+   Endpoint: 'http://redmine.example.com'
+   Apikey: アクセスキー
+   Projects:
+     1: プロジェクト識別子
+     2: プロジェクト識別子
+     ...
    ```
-3. チケット登録に成功するとそのチケットのタイトルと URL が出力される。
+2. 先にメールの内容を clipboard に登録しておく。
+3. そのまま以下を実行。
    ```
-   [バグ #1234: ユーザ情報更新時に確認ポップアップが表示されない - xxxx XXXX プロジェクト - Redmine]
+   $ gored -t 'バグ' -s 'ユーザ情報更新時に確認ポップアップが表示されない' -p 'normal' project_identifier
+   ```
+4. チケット登録に成功すると、以下の通りそのチケットのタイトルと URL が clipboard に追加される。
+   ```
+   [バグ #1234: ユーザ情報更新時に確認ポップアップが表示されない -  XXXX_プロジェクト - Redmine]
    https://redmine.example.com/issues/1234
    ```
 
