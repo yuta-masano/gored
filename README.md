@@ -33,7 +33,7 @@ $ go get github.com/yuta-masano/gored
 
 1. $HOME/.config/gored/config.yml または $HOME/.config/gored/config.json で以下を定義する。以下は config.yml の例。
    ```
-   Endpoint: 'http://redmine.example.com'
+   Endpoint: 'https://redmine.example.com'
    Apikey: アクセスキー
    Projects:
      1: プロジェクト識別子
@@ -43,7 +43,7 @@ $ go get github.com/yuta-masano/gored
 2. 先にメールの内容を clipboard に登録しておく。
 3. そのまま以下を実行。
    ```
-   $ gored -t 'バグ' -p 'normal' project_identifier
+   $ gored -t 'バグ' -p 'Normal' project_identifier
    ```
 4. チケット登録に成功すると、以下の通りそのチケットのタイトルと URL が clipboard に追加される。
    ```
