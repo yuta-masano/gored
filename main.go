@@ -60,8 +60,8 @@ const sendClipboardText = ` [{{.Issue.Tracker.Name}} #{{.Issue.ID}} - {{.Issue.P
 
 var rootCmd = &cobra.Command{
 	Use: "gored project_identifier",
-	Short: `gored adds a new issue using your clipboard text,
-returns the added issue pages's title and URL.`,
+	Short: `gored creates a new issue on Redmine using your clipboard text,
+sends the added issue page's title and URL into your clipboard.`,
 	RunE: runGored,
 }
 
