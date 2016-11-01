@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -10,6 +11,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/atotto/clipboard"
@@ -21,11 +23,13 @@ import (
 
 var (
 	version     bool
-	projectID   string
 	tracker     string
 	subject     string
+
 	description string
 	priority    string
+
+	projectID int
 
 	// These values are embedded when building.
 	buildVersion string
@@ -44,7 +48,16 @@ type config struct {
 	Endpoint string
 	Apikey   string
 	Editor   string
+	Projects map[int]string
 }
+
+type sendClipboardData struct {
+	Issue *redmine.Issue
+	Cfg   config
+}
+
+const sendClipboardText = ` [{{.Issue.Tracker.Name}} #{{.Issue.ID}} - {{.Issue.Project.Name}} - Redmine]
+ {{.Cfg.Endpoint}}/issues/{{.Issue.ID}}`
 
 var rootCmd = &cobra.Command{
 	Use: "gored project_id",
@@ -52,6 +65,8 @@ var rootCmd = &cobra.Command{
 returns the added issue pages's title and URL.`,
 	RunE: runGored,
 }
+
+var t = template.Must(template.New("").Parse(sendClipboardText))
 
 func init() {
 	rootCmd.Flags().BoolVarP(&version, "version", "v", false,
@@ -80,6 +95,15 @@ func runGored(cmd *cobra.Command, argv []string) error {
 
 	if err := readConfig(); err != nil {
 		return err
+	}
+	projectIdentifier := argv[0]
+	for k, v := range cfg.Projects {
+		if v == projectIdentifier {
+			projectID = k
+		}
+	}
+	if projectID == 0 { // project_id は 1 から始まる（と思われる）。
+		return fmt.Errorf("%s is invalid project id\n", argv[0])
 	}
 
 	rand.Seed(time.Now().UnixNano())
@@ -163,12 +187,16 @@ func createIssue() error {
 		}
 	}
 	spew.Dump(issue)
-	// c := redmine.NewClient(conf.Endpoint, conf.Apikey)
-	// issue.ProjectId = projectID
-	// _, err = c.CreateIssue(*issue)
-	// if err != nil {
-	// 	return err
-	// }
+	c := redmine.NewClient(cfg.Endpoint, cfg.Apikey)
+	issue.ProjectId = projectID
+	addedIssue, err := c.CreateIssue(*issue)
+	if err != nil {
+		return err
+	}
+	err = sendClipboard(addedIssue)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -251,6 +279,20 @@ func run(editor, file string) error {
 		return err
 	}
 	if err := editorCmd.Wait(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func sendClipboard(addedIssue *redmine.Issue) error {
+	buff := new(bytes.Buffer)
+	if err := t.Execute(buff, sendClipboardData{
+		Issue: addedIssue,
+		Cfg:   cfg,
+	}); err != nil {
+		return err
+	}
+	if err := clipboard.WriteAll(buff.String()); err != nil {
 		return err
 	}
 	return nil
