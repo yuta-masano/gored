@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
@@ -15,6 +16,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	redmine "github.com/mattn/go-redmine"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -31,10 +33,18 @@ var (
 	buildWith    string
 )
 
+var cfg config
+
 var (
 	trackerTable  = []string{"情報更新", "バグ", "機能", "サポート"}
 	priorityTable = []string{"Low", "Normal", "High"}
 )
+
+type config struct {
+	Endpoint string
+	Apikey   string
+	Editor   string
+}
 
 var rootCmd = &cobra.Command{
 	Use: "gored project_id",
@@ -68,6 +78,10 @@ func runGored(cmd *cobra.Command, argv []string) error {
 		return fmt.Errorf("%s is invalid priority\n", priority)
 	}
 
+	if err := readConfig(); err != nil {
+		return err
+	}
+
 	rand.Seed(time.Now().UnixNano())
 	if err := createIssue(); err != nil {
 		return fmt.Errorf("%s\n", err)
@@ -88,6 +102,43 @@ func contain(haystack []string, needle string) bool {
 		}
 	}
 	return false
+}
+
+func readConfig() error {
+	var configDir string
+	if runtime.GOOS == "windows" {
+		configDir = filepath.Join(os.Getenv("APPDATA"), "gored")
+	} else {
+		configDir = filepath.Join(os.Getenv("HOME"), ".config", "gored")
+	}
+	if err := mkdir(configDir, 0700); err != nil {
+		return err
+	}
+	viper.AddConfigPath(configDir)
+	viper.SetConfigName("config")
+	if err := viper.ReadInConfig(); err != nil {
+		spew.Dump(err)
+		return fmt.Errorf("failed in reading config file: %s\n", err)
+	}
+	if err := viper.Unmarshal(&cfg); err != nil {
+		return fmt.Errorf("failed in setting config parameters: %s\n", err)
+	}
+	for _, param := range []string{"Endpoint", "Apikey"} {
+		if !viper.IsSet(param) {
+			return fmt.Errorf("failed in reading config parameter: %s must be specified\n", param)
+		}
+	}
+	return nil
+}
+
+func mkdir(dir string, permission os.FileMode) error {
+	finfo, err := os.Stat(dir)
+	if err != nil {
+		os.Mkdir(dir, permission)
+	} else if !finfo.IsDir() {
+		return fmt.Errorf("%s mast be directory\n", dir)
+	}
+	return nil
 }
 
 func createIssue() error {
@@ -167,13 +218,16 @@ func issueFromEditor(contents string) (*redmine.Issue, error) {
 }
 
 func getEditor() string {
-	editor := os.Getenv("EDITOR")
+	editor := cfg.Editor
+	if editor == "" {
+		editor = os.Getenv("EDITOR")
 	if editor == "" {
 		if runtime.GOOS == "windows" {
 			editor = "notepad"
 		} else {
 			editor = "vi"
 		}
+	}
 	}
 	return editor
 }
@@ -198,16 +252,6 @@ func run(editor, file string) error {
 	}
 	if err := editorCmd.Wait(); err != nil {
 		return err
-	}
-	return nil
-}
-
-func mkdir(dir string) error {
-	finfo, err := os.Stat(dir)
-	if err != nil { // err がある = no such file or directory のはず。
-		os.Mkdir(dir, 0700)
-	} else if !finfo.IsDir() {
-		return fmt.Errorf("%s mast be directory", dir)
 	}
 	return nil
 }
