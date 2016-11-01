@@ -67,6 +67,8 @@ returns the added issue pages's title and URL.`,
 
 var t = template.Must(template.New("").Parse(sendClipboardText))
 
+const win = "windows"
+
 func init() {
 	rootCmd.Flags().BoolVarP(&version, "version", "v", false,
 		"show program's version number and exit")
@@ -129,7 +131,7 @@ func contain(haystack []string, needle string) bool {
 
 func readConfig() error {
 	var configDir string
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == win {
 		configDir = filepath.Join(os.Getenv("APPDATA"), "gored")
 	} else {
 		configDir = filepath.Join(os.Getenv("HOME"), ".config", "gored")
@@ -156,7 +158,10 @@ func readConfig() error {
 func mkdir(dir string, permission os.FileMode) error {
 	finfo, err := os.Stat(dir)
 	if err != nil {
-		os.Mkdir(dir, permission)
+		err = os.Mkdir(dir, permission)
+		if err != nil {
+			return err
+		}
 	} else if !finfo.IsDir() {
 		return fmt.Errorf("%s mast be directory\n", dir)
 	}
@@ -202,7 +207,11 @@ func issueFromEditor(contents string) (*redmine.Issue, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer os.Remove(file.Name())
+	defer func() {
+		if err = os.Remove(file.Name()); err != nil {
+			panic(err)
+		}
+	}()
 
 	editor := getEditor()
 	if contents == "" {
@@ -210,9 +219,16 @@ func issueFromEditor(contents string) (*redmine.Issue, error) {
 ### Start Description ###
 `
 	}
-	file.Write([]byte(contents))
-	defer file.Close()
-	if err := run(editor, file.Name()); err != nil {
+	_, err = file.Write([]byte(contents))
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err = file.Close(); err != nil {
+			panic(err)
+		}
+	}()
+	if err = run(editor, file.Name()); err != nil {
 		return nil, err
 	}
 	b, err := ioutil.ReadFile(file.Name())
@@ -229,7 +245,6 @@ func issueFromEditor(contents string) (*redmine.Issue, error) {
 		return nil, errors.New("Canceled")
 	}
 
-	var subject, description string
 	if len(lines) == 1 {
 		subject = lines[0]
 	} else {
@@ -247,7 +262,7 @@ func getEditor() string {
 	if editor == "" {
 		editor = os.Getenv("EDITOR")
 		if editor == "" {
-			if runtime.GOOS == "windows" {
+			if runtime.GOOS == win {
 				editor = "notepad"
 			} else {
 				editor = "vi"
@@ -266,7 +281,7 @@ func run(editor, file string) error {
 	// http://stackoverflow.com/questions/12088138/trying-to-launch-an-external-editor-from-within-a-go-program/12089980#12089980
 	editorCmd := exec.Command(cmd, file)
 	var stdin *os.File
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == win {
 		stdin, _ = os.Open("CONIN$")
 	} else {
 		stdin = os.Stdin
