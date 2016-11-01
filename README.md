@@ -10,7 +10,7 @@ gored は CLI ベースの Redmine 新規チケット作成ツールです。
 
 * チケット登録に成功するとそのチケットのタイトルと URL を clipboard に追加します。
 
-* 引数でプロジェクト ID を指定します。
+* 引数で「プロジェクト識別子」を指定します。
 * オプションで「トラッカー」、「優先度」が指定できます。
 
 ## Motivation
@@ -27,6 +27,8 @@ gored は CLI ベースの Redmine 新規チケット作成ツールです。
 $ go get github.com/yuta-masano/gored
 ```
 
+または、[Release ページ](https://github.com/yuta-masano/gored/releases)からどうぞ。
+
 ## Usage
 
 1. $HOME/.config/gored/config.yml または $HOME/.config/gored/config.json で以下を定義する。以下は config.yml の例。
@@ -41,7 +43,7 @@ $ go get github.com/yuta-masano/gored
 2. 先にメールの内容を clipboard に登録しておく。
 3. そのまま以下を実行。
    ```
-   $ gored -t 'バグ' -s 'ユーザ情報更新時に確認ポップアップが表示されない' -p 'normal' project_identifier
+   $ gored -t 'バグ' -p 'normal' project_identifier
    ```
 4. チケット登録に成功すると、以下の通りそのチケットのタイトルと URL が clipboard に追加される。
    ```
@@ -52,7 +54,18 @@ $ go get github.com/yuta-masano/gored
 ### Option
 
 ```
+$ gored --help
 
+gored creates a new issue on Redmine using your clipboard text,
+sends the added issue page's title and URL into your clipboard.
+
+Usage:
+  gored project_identifier [flags]
+
+Flags:
+  -p, --priority string   choose Low, Normal, High (default "Normal")
+  -t, --tracker string    choose 情報更新, バグ, 機能, サポート (default "バグ")
+  -v, --version           show program's version number and exit
 ```
 
 ## License
