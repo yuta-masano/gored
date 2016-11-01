@@ -15,16 +15,15 @@ import (
 	"time"
 
 	"github.com/atotto/clipboard"
-	"github.com/davecgh/go-spew/spew"
 	redmine "github.com/mattn/go-redmine"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var (
-	version     bool
-	tracker     string
-	subject     string
+	version bool
+	tracker string
+	subject string
 
 	description string
 	priority    string
@@ -141,7 +140,6 @@ func readConfig() error {
 	viper.AddConfigPath(configDir)
 	viper.SetConfigName("config")
 	if err := viper.ReadInConfig(); err != nil {
-		spew.Dump(err)
 		return fmt.Errorf("failed in reading config file: %s\n", err)
 	}
 	if err := viper.Unmarshal(&cfg); err != nil {
@@ -186,7 +184,6 @@ func createIssue() error {
 			return err
 		}
 	}
-	spew.Dump(issue)
 	c := redmine.NewClient(cfg.Endpoint, cfg.Apikey)
 	issue.ProjectId = projectID
 	addedIssue, err := c.CreateIssue(*issue)
