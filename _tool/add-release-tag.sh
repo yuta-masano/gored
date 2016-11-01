@@ -38,5 +38,5 @@ while IFS= read line; do
 done <./CHANGELOG
 
 MESSAGE="$(echo "$BUFF" | sed -e 's/\\n\\n//' -e 's/\\n/\n/g')"
-echo "git -a \"$TAG\" -m \"$MESSAGE\""
-echo "git push --tags"
+git tag -a "$TAG" -m "$MESSAGE"
+git push --tags
