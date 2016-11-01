@@ -221,13 +221,13 @@ func getEditor() string {
 	editor := cfg.Editor
 	if editor == "" {
 		editor = os.Getenv("EDITOR")
-	if editor == "" {
-		if runtime.GOOS == "windows" {
-			editor = "notepad"
-		} else {
-			editor = "vi"
+		if editor == "" {
+			if runtime.GOOS == "windows" {
+				editor = "notepad"
+			} else {
+				editor = "vi"
+			}
 		}
-	}
 	}
 	return editor
 }
