@@ -76,6 +76,7 @@ func init() {
 		fmt.Sprint("choose ", strings.Join(trackerTable, ", ")))
 	rootCmd.Flags().StringVarP(&priority, "priority", "p", "Normal",
 		fmt.Sprint("choose ", strings.Join(priorityTable, ", ")))
+	rootCmd.Flags().BoolP("help", "h", false, "help for gored")
 }
 
 func runGored(cmd *cobra.Command, argv []string) error {
