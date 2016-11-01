@@ -85,7 +85,7 @@ func runGored(cmd *cobra.Command, argv []string) error {
 		return nil
 	}
 	if len(argv) < 1 {
-		return errors.New("specify project_id to add a new issue\n")
+		return errors.New("specify project_identifier to add a new issue\n")
 	}
 	if !contain(trackerTable, tracker) {
 		return fmt.Errorf("%s is invalid tracker\n", tracker)
@@ -104,7 +104,7 @@ func runGored(cmd *cobra.Command, argv []string) error {
 		}
 	}
 	if projectID == 0 { // project_id は 1 から始まる（と思われる）。
-		return fmt.Errorf("%s is invalid project id\n", argv[0])
+		return fmt.Errorf("%s is invalid project_identifier\n", argv[0])
 	}
 
 	rand.Seed(time.Now().UnixNano())
