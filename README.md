@@ -37,16 +37,18 @@ $ go get github.com/yuta-masano/gored
    Endpoint: 'https://redmine.example.com'
    Apikey: アクセスキー
    Projects:
-     1: プロジェクト識別子
-     2: プロジェクト識別子
+     1: プロジェクト alias
+     2: プロジェクト alias
      ...
    ```
+
+   ```Projects``` は各 プロジェクトの project_id を key とし、project_id を同定するための任意のエイリアスを value とした連想配列です。
 
 2. 先にメールの内容を clipboard に登録しておく。
 3. そのまま以下を実行。
 
    ```
-   $ gored -t 'バグ' -p 'Normal' project_identifier
+   $ gored -t 'バグ' -p 'Normal' project_alias
    ```
 
 4. チケット登録に成功すると、以下のようなそのチケットのタイトルと URL が clipboard に追加される。
@@ -64,7 +66,7 @@ gored creates a new issue on Redmine using your clipboard text,
 sends the added issue page's title and URL into your clipboard.
 
 Usage:
-  gored project_identifier [flags]
+  gored project_alias [flags]
 
 Flags:
   -p, --priority string   choose Low, Normal, High (default "Normal")

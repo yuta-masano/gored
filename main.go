@@ -59,7 +59,7 @@ const sendClipboardText = ` [{{.Issue.Tracker.Name}} #{{.Issue.Id}} - {{.Issue.P
  {{.Cfg.Endpoint}}/issues/{{.Issue.Id}}`
 
 var rootCmd = &cobra.Command{
-	Use: "gored project_identifier",
+	Use: "gored project_alias",
 	Short: `gored creates a new issue on Redmine using your clipboard text,
 sends the added issue page's title and URL into your clipboard.`,
 	RunE: runGored,
@@ -86,7 +86,7 @@ func runGored(cmd *cobra.Command, argv []string) error {
 		return nil
 	}
 	if len(argv) < 1 {
-		return errors.New("specify project_identifier to add a new issue\n")
+		return errors.New("specify project_alias to add a new issue\n")
 	}
 	if !contain(trackerTable, tracker) {
 		return fmt.Errorf("%s is invalid tracker\n", tracker)
@@ -98,14 +98,14 @@ func runGored(cmd *cobra.Command, argv []string) error {
 	if err := readConfig(); err != nil {
 		return err
 	}
-	projectIdentifier := argv[0]
+	projectAlias := argv[0]
 	for k, v := range cfg.Projects {
-		if v == projectIdentifier {
+		if v == projectAlias {
 			projectID = k
 		}
 	}
 	if projectID == 0 { // project_id は 1 から始まる（と思われる）。
-		return fmt.Errorf("%s is invalid project_identifier\n", argv[0])
+		return fmt.Errorf("%s is invalid project_alias\n", argv[0])
 	}
 
 	rand.Seed(time.Now().UnixNano())
