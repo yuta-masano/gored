@@ -65,7 +65,8 @@ install: deps-install ## install the binary
 	go install -ldflags "$(LD_FLAGS) -linkmode external -extldflags -static"
 
 .PHONY: lint
-lint: install ## lint go sources and check whether only LICENSE file has copyright sentence
+lint: ## lint go sources and check whether only LICENSE file has copyright sentence
+	go install -ldflags "$(LD_FLAGS) -linkmode external -extldflags -static"
 	gometalinter --errors --enable-all --deadline=60s $(shell glide novendor)
 	$(TOOL_DIR)/copyright-check.sh
 
