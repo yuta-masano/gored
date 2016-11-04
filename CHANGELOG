@@ -1,2 +1,13 @@
+0.1.1 (2016-11-05)
+  Bug
+    * README.md の崩れている体裁を修正 (#1)
+    * issue 登録後にその issue ページのタイトルと URL を clipboard に送れてい なかった不具合を修正 (#5)
+  Enhancement
+    * project_id の取得例を加筆 (#4)
+    * project_identifier という用語は Redmine の用語として存在しているので別の 用語に修正した (#3)
+  Misc
+    * issue テンプレートを gored 向けに修正 (#6)
+    * 開発フローを更新 (#7)
+
 0.1.0 (2016-11-02)
   Initial release
