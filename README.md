@@ -43,6 +43,14 @@ $ go get github.com/yuta-masano/gored
    ```
 
    ```Projects``` は各 プロジェクトの project_id を key とし、project_id を同定するための任意のエイリアスを value とした連想配列です。
+   各プロジェクトの project_id は例えば以下で確認できます。
+   ```
+   $ psql -U postgres -At -d redmine -c "SELECT id || ': ' || identifier FROM projects ORDER BY id"
+   1: xxx-prj
+   2: yyy-prj
+   3: zzz-prj
+   ...
+   ```
 
 2. 先にメールの内容を clipboard に登録しておく。
 3. そのまま以下を実行。
