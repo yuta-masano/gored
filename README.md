@@ -32,6 +32,7 @@ $ go get github.com/yuta-masano/gored
 ## Usage
 
 1. $HOME/.config/gored/config.yml または $HOME/.config/gored/config.json で以下を定義する。以下は config.yml の例。
+
    ```
    Endpoint: 'https://redmine.example.com'
    Apikey: アクセスキー
@@ -40,12 +41,16 @@ $ go get github.com/yuta-masano/gored
      2: プロジェクト識別子
      ...
    ```
+
 2. 先にメールの内容を clipboard に登録しておく。
 3. そのまま以下を実行。
+
    ```
    $ gored -t 'バグ' -p 'Normal' project_identifier
    ```
+
 4. チケット登録に成功すると、以下のようなそのチケットのタイトルと URL が clipboard に追加される。
+
    ```
    [バグ #1234: ユーザ情報更新時に確認ポップアップが表示されない -  XXXX_プロジェクト - Redmine]
    https://redmine.example.com/issues/1234
