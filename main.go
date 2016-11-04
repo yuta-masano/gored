@@ -55,8 +55,8 @@ type sendClipboardData struct {
 	Cfg   config
 }
 
-const sendClipboardText = ` [{{.Issue.Tracker.Name}} #{{.Issue.ID}} - {{.Issue.Project.Name}} - Redmine]
- {{.Cfg.Endpoint}}/issues/{{.Issue.ID}}`
+const sendClipboardText = ` [{{.Issue.Tracker.Name}} #{{.Issue.Id}} - {{.Issue.Project.Name}} - Redmine]
+ {{.Cfg.Endpoint}}/issues/{{.Issue.Id}}`
 
 var rootCmd = &cobra.Command{
 	Use: "gored project_identifier",
