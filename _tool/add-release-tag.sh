@@ -6,19 +6,19 @@ set -o nounset -o errexit -o pipefail
 # Prevent commands misbehaving due to locale differences.
 export LC_ALL=C LANG=C
 
-TAG="$1"
+NEW_TAG="$1"
 TAG_LIST="$(git describe --always --dirty)"
 
-echo "$TAG_LIST" | grep --quiet "$TAG" && :
+echo "$TAG_LIST" | grep --quiet "$NEW_TAG" && :
 if [ $? -eq 0 ]; then
-	echo "$TAG already exists" >&2
+	echo "$NEW_TAG already exists" >&2
 	exit 1
 fi
 
 IS_TARGET_TAG=false
 BUFF=""
 while IFS= read line; do
-	echo "$line" | grep --quiet "$TAG" && :
+	echo "$line" | grep --quiet "$NEW_TAG" && :
 	if [ $? -eq 0 ]; then
 		IS_TARGET_TAG=true
 		BUFF+="$line\n"
@@ -35,8 +35,8 @@ while IFS= read line; do
 		BUFF+="$line\n"
 		continue
 	fi
-done <./CHANGELOG
+done < ./CHANGELOG
 
-MESSAGE="$(echo "$BUFF" | sed -e 's/\\n\\n//' -e 's/\\n/\n/g')"
-git tag -a "$TAG" -m "$MESSAGE"
+CHANGES="$(echo "$BUFF" | sed -e 's/\\n\\n//' -e 's/\\n/\n/g')"
+git tag -a "$NEW_TAG" -m "$CHANGES"
 git push --tags

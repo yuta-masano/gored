@@ -96,7 +96,7 @@ The MIT License (MIT)
 
 ```
 $ # 1. リポジトリを取得。
-$ go get github.com/yuta-masano/gored
+$ go get -v -u -d github.com/yuta-masano/gored
 
 $ # 2. リポジトリディレクトリに移動。
 $ cd $GOPATH/src/github.com/yuta-masano/gored
@@ -112,3 +112,29 @@ TARGETS:
 help           show help
 ...
 ```
+
+### リリースフロー
+
+1. ローカルブランチを切る。  
+   ブランチ名にはリリースするバージョン番号を含めること。
+2. コミット コミット コミット ...  
+   コミットログの一部は CHANGELOG に使いまわす想定。  
+   以下の様に、コミットログの件名を `(issue_label #xxx)` で終わらせると、下の操作で CHANGELOG に掲載されるようにしている。  
+     ```
+    help オプションを明示的に表示させた (enhancement #2)
+    ```
+3. `make push-release` する。  
+    以下が行われる。**途中で vi の操作を要求される。全自動ではない。**
+	* CHANGELOG を更新してコミットする。  
+      `_tool/add-changelog.sh` スクリプトを実行すると、以下が行われる。  
+      - 前回リリース以降からスクリプト実行時までの上述のコミットログを使って、CHANGELOG を `vi` で開いてくれる。  
+        体裁を整えて保存する。
+      - CHANGELOG に変更があれば CHANGELOG がコミットされる。  
+        ここがリリースポイント。  
+        ついでに、上述のコミットログに記載されたイシュー番号をクローズするようにしている。  
+        コミットログは `vi` で開いてくれるので編集可能。
+    * master ブランチにマージしてプッシュする。
+    * リリースタグを切ってプッシュする。  
+      `_tool/add-release-tag.sh x.y.z` と引数にリリースバージョンを指定してスクリプトを実行すると、CHANGELOG から指定したバージョンの変更履歴を抜き出して注釈付きタグを作成、リモートにプッシュしてくれる。
+4. `make release` する。  
+   リモートにある最新のタグを使ってバイナリがリリースされる。

@@ -14,15 +14,21 @@ OUTPUT := $(PKG_DEST_DIR)/{{.OS}}_{{.Arch}}/{{.Dir}}
 # ALL_OS * ALL_ARCH の組み合わせで 'OS_ARCH OS_ARCH OS_ARCH ...' という文字列を作る。
 ALL_OS_ARCH := $(foreach OS,$(ALL_OS),$(foreach ARCH,$(ALL_ARCH),$(OS)_$(ARCH)))
 
+LATEST_LOCAL_BRANCH:=$(shell git for-each-ref       \
+			--sort='-*committerdate'                \
+			--format="%(refname:short)" refs/heads/ |\
+			head --lines=1)
+NEW_TAG:=$(shell echo "$(LATEST_LOCAL_BRANCH)" |\
+   	grep --only-matching -E '[0-9]+\.[0-9]+\.[0-9]+')
+
 
 #===============================================================================
 #  version information embedding
 #===============================================================================
-# git tag は `git tag -a 'x.y.z'` と -a オプションで明示的に
-# 注釈としてバージョン番号を付けること。
+# バージョンタグは `git tag -a 'x.y.z'` と注釈付きタグであることが前提。
 VERSION := $(shell git describe --always --dirty 2>/dev/null || echo 'no git tag')
 VERSION_PACKAGE := main
-BUILD_DATE := $(shell date '+%F %T %Z')
+BUILD_DATE := $(shell date +'%F %T %Z')
 BUILD_WITH := $(shell go version)
 LD_FLAGS := -X '$(VERSION_PACKAGE).buildVersion=$(VERSION)' \
 	-X '$(VERSION_PACKAGE).buildDate=$(BUILD_DATE)'         \
@@ -34,6 +40,7 @@ LD_FLAGS := -X '$(VERSION_PACKAGE).buildVersion=$(VERSION)' \
 #    `make [help]` shows tasks what you should execute.
 #    The other are helper targets.
 #===============================================================================
+SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
 # [Add a help target to a Makefile that will allow all targets to be self documenting]
@@ -50,10 +57,10 @@ help: ## show help
 # install development tools
 .PHONY: setup
 setup:
-	(which glide &>/dev/null) || curl https://glide.sh/get | sh
-	go get -v github.com/alecthomas/gometalinter
-	go get -v github.com/mitchellh/gox
-	go get -v github.com/tcnksm/ghr
+	type -a glide &>/dev/null || curl https://glide.sh/get | sh
+	go get -v -u github.com/alecthomas/gometalinter
+	go get -v -u github.com/mitchellh/gox
+	go get -v -u github.com/tcnksm/ghr
 	gometalinter --install
 
 .PHONY: deps-install
@@ -61,14 +68,22 @@ deps-install: setup ## install vendor packages based on glide.lock or glide.yaml
 	glide install
 
 .PHONY: install
-install: deps-install ## install the binary
+install:
 	go install -ldflags "$(LD_FLAGS) -linkmode external -extldflags -static"
 
 .PHONY: lint
 lint: ## lint go sources and check whether only LICENSE file has copyright sentence
-	go install -ldflags "$(LD_FLAGS) -linkmode external -extldflags -static"
+	glide list || glide install
 	gometalinter --errors --enable-all --deadline=60s $(shell glide novendor)
 	$(TOOL_DIR)/copyright-check.sh
+
+.PHONY: push-release
+push-release: ## update CHANGELOG and push all of the your development works
+	$(TOOL_DIR)/add-changelog.sh "$(NEW_TAG)"
+	git checkout master
+	git merge "$(LATEST_LOCAL_BRANCH)"
+	git push
+	$(TOOL_DIR)/add-release-tag.sh "$(NEW_TAG)"
 
 .PHONY: test
 test: ## go test
@@ -76,7 +91,10 @@ test: ## go test
 
 .PHONY: all-build
 all-build:
-	gox -os='$(ALL_OS)' -arch='$(ALL_ARCH)' -ldflags="$(LD_FLAGS)" -output='$(OUTPUT)'
+	gox -os='$(ALL_OS)'        \
+		-arch='$(ALL_ARCH)'    \
+		-ldflags="$(LD_FLAGS)" \
+		-output='$(OUTPUT)'
 
 .PHONY: all-archive
 all-archive:
