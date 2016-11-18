@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"text/template"
 	"time"
 
 	"github.com/atotto/clipboard"
@@ -49,16 +48,6 @@ type config struct {
 }
 
 var cfg config
-
-type sendClipboardData struct {
-	Issue *redmine.Issue
-	Cfg   config
-}
-
-const sendClipboardText = ` [{{.Issue.Tracker.Name}} #{{.Issue.Id}}: {{.Issue.Subject}} - {{.Issue.Project.Name}} - Redmine]
- {{.Cfg.Endpoint}}/issues/{{.Issue.Id}}`
-
-var t = template.Must(template.New("").Parse(sendClipboardText))
 
 var rootCmd = &cobra.Command{
 	Use: "gored project_alias",
@@ -328,12 +317,9 @@ func run(editor, file string) error {
 
 func sendClipboard(addedIssue *redmine.Issue) error {
 	buff := new(bytes.Buffer)
-	if err := t.Execute(buff, sendClipboardData{
-		Issue: addedIssue,
-		Cfg:   cfg,
-	}); err != nil {
-		return err
-	}
+	fmt.Fprintf(buff, " [%s #%d: %s - %s - Redmine]\n %s/issues/%d\n",
+		addedIssue.Tracker.Name, addedIssue.Id, addedIssue.Subject, addedIssue.Project.Name,
+		cfg.Endpoint, addedIssue.Id)
 	if err := clipboard.WriteAll(buff.String()); err != nil {
 		return err
 	}
