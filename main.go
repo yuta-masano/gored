@@ -55,7 +55,7 @@ type sendClipboardData struct {
 	Cfg   config
 }
 
-const sendClipboardText = ` [{{.Issue.Tracker.Name}} #{{.Issue.Id}} - {{.Issue.Project.Name}} - Redmine]
+const sendClipboardText = ` [{{.Issue.Tracker.Name}} #{{.Issue.Id}}: {{.Issue.Subject}} - {{.Issue.Project.Name}} - Redmine]
  {{.Cfg.Endpoint}}/issues/{{.Issue.Id}}`
 
 var t = template.Must(template.New("").Parse(sendClipboardText))
