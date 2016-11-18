@@ -15,9 +15,9 @@ import (
 	"time"
 
 	"github.com/atotto/clipboard"
-	redmine "github.com/mattn/go-redmine"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	redmine "github.com/yuta-masano/go-redmine"
 )
 
 var (
@@ -191,7 +191,18 @@ func createIssue() error {
 		}
 	}
 	c := redmine.NewClient(cfg.Endpoint, cfg.Apikey)
+	trackers, err := c.Trackers()
+	if err != nil {
+		return err
+	}
+	priorities, err := c.IssuePriorities()
+	if err != nil {
+		return err
+	}
+
 	issue.ProjectId = projectID
+	issue.TrackerId = retriveTracker(trackers).Id
+	issue.PriorityId = retrievePriority(priorities).Id
 	addedIssue, err := c.CreateIssue(*issue)
 	if err != nil {
 		return err
@@ -201,6 +212,24 @@ func createIssue() error {
 		return err
 	}
 	return nil
+}
+
+func retriveTracker(trackers []redmine.IdName) *redmine.IdName {
+	for _, t := range trackers {
+		if t.Name == tracker {
+			return &redmine.IdName{Id: t.Id, Name: t.Name}
+		}
+	}
+	return new(redmine.IdName)
+}
+
+func retrievePriority(priorities []redmine.IssuePriority) *redmine.IdName {
+	for _, p := range priorities {
+		if p.Name == priority {
+			return &redmine.IdName{Id: p.Id, Name: p.Name}
+		}
+	}
+	return new(redmine.IdName)
 }
 
 func issueFromEditor(contents string) (*redmine.Issue, error) {
