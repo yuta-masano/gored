@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/atotto/clipboard"
@@ -30,9 +31,9 @@ var (
 	projectID int
 
 	// These values are embedded when building.
-	buildVersion string
+	buildVersion  string
 	buildRevision string
-	buildWith    string
+	buildWith     string
 )
 
 var (
@@ -45,6 +46,7 @@ type config struct {
 	Apikey   string
 	Editor   string
 	Projects map[int]string
+	Template string
 }
 
 var cfg config
@@ -232,15 +234,23 @@ func issueFromEditor(contents string) (*redmine.Issue, error) {
 		}
 	}()
 
+	tpl := template.Must(template.New("").Parse(cfg.Template))
+
 	editor := getEditor()
 	if contents == "" {
 		contents = `### Single Line Subject ###
 ### Start Description ###
 `
-	}
-	_, err = file.Write([]byte(contents))
-	if err != nil {
-		return nil, err
+		_, err = file.Write([]byte(contents))
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		err := tpl.Execute(file, struct{ Clipboard string }{Clipboard: contents})
+		if err != nil {
+			return nil, err
+		}
+
 	}
 	defer func() {
 		if err = file.Close(); err != nil {
