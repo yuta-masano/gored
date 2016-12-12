@@ -31,7 +31,7 @@ var (
 
 	// These values are embedded when building.
 	buildVersion string
-	buildDate    string
+	buildRevision string
 	buildWith    string
 )
 
@@ -70,18 +70,18 @@ func init() {
 
 func runGored(cmd *cobra.Command, args []string) error {
 	if version {
-		fmt.Printf("version: %s\nbuild at: %s\nwith: %s\n",
-			buildVersion, buildDate, buildWith)
+		fmt.Printf("version: %s\nrevision: %s\nwith: %s\n",
+			buildVersion, buildRevision, buildWith)
 		return nil
 	}
 	if len(args) < 1 {
-		return errors.New("specify project_alias to add a new issue\n")
+		return errors.New("specify project_alias to add a new issue")
 	}
 	if !contain(trackerTable, tracker) {
-		return fmt.Errorf("%s is invalid tracker\n", tracker)
+		return fmt.Errorf("%s is invalid tracker", tracker)
 	}
 	if !contain(priorityTable, priority) {
-		return fmt.Errorf("%s is invalid priority\n", priority)
+		return fmt.Errorf("%s is invalid priority", priority)
 	}
 
 	if err := readConfig(); err != nil {
@@ -94,12 +94,12 @@ func runGored(cmd *cobra.Command, args []string) error {
 		}
 	}
 	if projectID == 0 { // project_id は 1 から始まる（と思われる）。
-		return fmt.Errorf("%s is invalid project_alias\n", args[0])
+		return fmt.Errorf("%s is invalid project_alias", args[0])
 	}
 
 	rand.Seed(time.Now().UnixNano())
 	if err := createIssue(); err != nil {
-		return fmt.Errorf("%s\n", err)
+		return fmt.Errorf("%s", err)
 	}
 	return nil
 }
@@ -132,14 +132,14 @@ func readConfig() error {
 	viper.AddConfigPath(configDir)
 	viper.SetConfigName("config")
 	if err := viper.ReadInConfig(); err != nil {
-		return fmt.Errorf("failed in reading config file: %s\n", err)
+		return fmt.Errorf("failed in reading config file: %s", err)
 	}
 	if err := viper.Unmarshal(&cfg); err != nil {
-		return fmt.Errorf("failed in setting config parameters: %s\n", err)
+		return fmt.Errorf("failed in setting config parameters: %s", err)
 	}
 	for _, param := range []string{"Endpoint", "Apikey"} {
 		if !viper.IsSet(param) {
-			return fmt.Errorf("failed in reading config parameter: %s must be specified\n", param)
+			return fmt.Errorf("failed in reading config parameter: %s must be specified", param)
 		}
 	}
 	return nil
@@ -153,7 +153,7 @@ func mkdir(dir string, permission os.FileMode) error {
 			return err
 		}
 	} else if !finfo.IsDir() {
-		return fmt.Errorf("%s mast be directory\n", dir)
+		return fmt.Errorf("%s mast be directory", dir)
 	}
 	return nil
 }

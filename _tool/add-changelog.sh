@@ -13,10 +13,10 @@ trap 'rm -f /tmp/tmp.*."${0##*/}"; exit 1' 1 2 3 15 # HUP QUIT INT TERM
 NEW_TAG="$1"
 CURRENT_TAG="$(git describe --always --dirty)"
 CURRENT_CHANGELOG="$(git show origin/master:CHANGELOG)"
-COMMIT_LOGS=$(git log "${CURRENT_TAG%%-*}..." \
-	--format='    * %s'                   \
-	--grep='([a-z]\+ #[0-9]\+'            |
-	sed -e 's/\(['^$'\x01''-'$'\x7e'']\) \(['^$'\x01''-'$'\x7e'']\)/\1\2/g')
+COMMIT_LOGS=$(git log "${CURRENT_TAG%%-*}..."                                 \
+	--format='    * %s'                                                       \
+	--grep='([a-z]\+ #[0-9]\+'                                               |\
+	sed -e 's/\([^'$'\x01''-'$'\x7e'']\) \([^'$'\x01''-'$'\x7e'']\)/\1\2/g')
 	# 上の sed は、「全角 全角」となっている文字列から半角スペースを
 	# 取り除いている。
 	# 2 行以上のコミットログの件名を一行で表示すると、
@@ -25,10 +25,31 @@ COMMIT_LOGS=$(git log "${CURRENT_TAG%%-*}..." \
 	# - bash の $'...' 表記を使って ASCII コード以外 = 半角文字以外を表現。
 	# - bash の文字列結合は単に文字列を隣接させるだけでよい。
 
+FEATURE_LOGS="$(echo "$COMMIT_LOGS" | grep '(feature #' || :)"
+BUG_LOGS="$(echo "$COMMIT_LOGS" | grep '(bug #' || :)"
+ENHANCEMENT_LOGS="$(echo "$COMMIT_LOGS" | grep '(enhancement #' || :)"
+MISC_LOGS="$(echo "$COMMIT_LOGS" | grep '(misc #' || :)"
+
 NEW_CHANGELOG="$(mktemp --tmpdir=/tmp --suffix=".${0##*/}")"
 {
+	echo '# Delete this line to accept this draft.'
 	echo "$NEW_TAG ($(date +'%F'))"
-	echo "$COMMIT_LOGS"
+	if [ -n "$FEATURE_LOGS" ]; then
+		echo '  Feature'
+		echo "${FEATURE_LOGS//'(feature #'/'(#'}"
+	fi
+	if [ -n "$BUG_LOGS" ]; then
+		echo '  Bug'
+		echo "${BUG_LOGS//'(bug #'/'(#'}"
+	fi
+	if [ -n "$ENHANCEMENT_LOGS" ]; then
+		echo '  Enhancement'
+		echo "${ENHANCEMENT_LOGS//'(enhancement #'/'(#'}"
+	fi
+	if [ -n "$MISC_LOGS" ]; then
+		echo '  Misc'
+		echo "${MISC_LOGS//'(misc #'/'(#'}"
+	fi
 	echo
 	echo "$CURRENT_CHANGELOG"
 } > "$NEW_CHANGELOG"
@@ -44,8 +65,8 @@ fi
 cp --force "$NEW_CHANGELOG" CHANGELOG
 git add CHANGELOG
 
-CLOSE_ISSUES="$(echo $COMMIT_LOGS            |
-	grep --only-matching -E '[a-z]+ #[0-9]+' |
+CLOSE_ISSUES="$(echo $COMMIT_LOGS            |\
+	grep --only-matching -E '[a-z]+ #[0-9]+' |\
 	sed -e 's/[a-z]\+/close/')"
 
 COMMIT_MESSAGE="$(mktemp --tmpdir=/tmp --suffix=".${0##*/}")"
