@@ -10,6 +10,12 @@ export LC_ALL=C LANG=C
 trap 'rm -f /tmp/tmp.*."${0##*/}"'         0        # EXIT
 trap 'rm -f /tmp/tmp.*."${0##*/}"; exit 1' 1 2 3 15 # HUP QUIT INT TERM
 
+#---  新しい CHANGELOG を作成する  ---------------------------------------------
+# 既存の CHANGELOG　の先頭に新しい変更履歴を挿入したいので、
+#   1. 空のファイルに変更したい情報を記入。
+#   2. 既存の変更履歴を 1. に追記。
+#   3. 1. のファイルを CHANGELOG としてコピー。
+# という手法を取っている。
 NEW_TAG="$1"
 CURRENT_TAG="$(git describe --always --dirty)"
 CURRENT_CHANGELOG="$(git show origin/master:CHANGELOG)"
@@ -54,6 +60,7 @@ NEW_CHANGELOG="$(mktemp --tmpdir=/tmp --suffix=".${0##*/}")"
 	echo "$CURRENT_CHANGELOG"
 } > "$NEW_CHANGELOG"
 
+#---  CHANGELOG が正しく編集されているかチェック  ------------------------------
 befor="$(md5sum "$NEW_CHANGELOG")"
 vi "$NEW_CHANGELOG" < $(tty) > $(tty)
 after="$(md5sum "$NEW_CHANGELOG")"
@@ -61,13 +68,20 @@ if [ "$befor" = "$after" ]; then
 	echo 'CHANGELOG dit not modified' >&2
 	exit 1
 fi
+grep --quiet '# Delete this line' "$NEW_CHANGELOG" && :
+if [ $? -eq 0 ]; then
+	echo '1 st line must be deleted' >&2
+	exit 1
+fi
 
+#---  CHANGELOG を適用してコミット  --------------------------------------------
 cp --force "$NEW_CHANGELOG" CHANGELOG
 git add CHANGELOG
 
 CLOSE_ISSUES="$(echo $COMMIT_LOGS            |\
 	grep --only-matching -E '[a-z]+ #[0-9]+' |\
-	sed -e 's/[a-z]\+/close/')"
+	sed -e 's/[a-z]\+/close/'                |\
+	uniq)"
 
 COMMIT_MESSAGE="$(mktemp --tmpdir=/tmp --suffix=".${0##*/}")"
 {

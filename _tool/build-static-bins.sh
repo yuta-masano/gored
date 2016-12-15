@@ -21,10 +21,10 @@ for os in $ALL_OS; do
 	fi
 	for arch in $ALL_ARCH; do
 		echo "build $PKG_DEST_DIR/${os}_${arch}/$app_name"
-		GOOS=$os GOARCH=$arch CGO_ENABLED=0 go build -a -tags netgo \
-			-installsuffix netgo -ldflags "$LD_FLAGS"               \
-			-o "$PKG_DEST_DIR/${os}_${arch}/$app_name"              &
-		(( (cnt += 1) % 4 == 0 )) && wait
+		GOOS="$os" GOARCH="$arch" CGO_ENABLED=0 go build -a -tags netgo \
+			-installsuffix netgo -ldflags "$LD_FLAGS"                   \
+			-o "$PKG_DEST_DIR/${os}_${arch}/$app_name"                  &
+		(( (cnt += 1) % 8 == 0 )) && wait
 	done;
 done
 wait

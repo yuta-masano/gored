@@ -69,7 +69,7 @@ install:
 .PHONY: lint
 lint: ## lint go sources and check whether only LICENSE file has copyright sentence
 	glide list || glide install
-	gometalinter --errors --enable-all --deadline=60s $(shell glide novendor)
+	gometalinter --enable-all --deadline=60s $(shell glide novendor)
 	$(TOOL_DIR)/copyright-check.sh
 
 .PHONY: push-release

@@ -15,6 +15,8 @@ if [ $? -eq 0 ]; then
 	exit 1
 fi
 
+# CHANGELOG を上から一行ずつ読み込んでリリース向けバージョンに該当する
+# 変更履歴だけを取り出す。
 IS_TARGET_TAG=false
 BUFF=""
 while IFS= read line; do
