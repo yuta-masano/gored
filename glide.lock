@@ -1,8 +1,12 @@
-hash: ba5ae5b6cde099ae71c611bc7676de7dea86aba001da87a0a9d5204054a65283
-updated: 2016-12-12T10:46:20.330691704+09:00
+hash: 42d81d0249bc63fe6647ab859c410ffa9e53c21a445a688eac06cbd62d2fd521
+updated: 2016-12-16T10:49:29.834878702+09:00
 imports:
 - name: github.com/atotto/clipboard
   version: bb272b845f1112e10117e3e45ce39f690c0001ad
+- name: github.com/davecgh/go-spew
+  version: 346938d642f2ec3594ed81d874461961cd0faa76
+  subpackages:
+  - spew
 - name: github.com/fsnotify/fsnotify
   version: fd9ec7deca8bf46ecd2a795baaacf2b3a9be1197
 - name: github.com/hashicorp/hcl
@@ -20,6 +24,8 @@ imports:
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/magiconair/properties
   version: 9c47895dc1ce54302908ab8a43385d1f5df2c11c
+- name: github.com/mattn/go-redmine
+  version: 288ef38085be86419f6dff81366e618f612feb3c
 - name: github.com/mitchellh/mapstructure
   version: bfdb1a85537d60bc7e954e600c250219ea497417
 - name: github.com/pelletier/go-buffruneio
@@ -40,8 +46,6 @@ imports:
   version: 5ccb023bc27df288a957c5e994cd44fd19619465
 - name: github.com/spf13/viper
   version: 651d9d916abc3c3d6a91a12549495caba5edffd2
-- name: github.com/yuta-masano/go-redmine
-  version: 902f47ca9135ab445f7d3f216784806dddc81b93
 - name: golang.org/x/sys
   version: d5645953809d8b4752afb2c3224b1f1ad73dfa70
   subpackages:
