@@ -32,6 +32,14 @@ LD_FLAGS := -s -w -X '$(VERSION_PACKAGE).buildVersion=$(VERSION)' \
 
 
 #===============================================================================
+#  lint options
+#===============================================================================
+GOMETALINTER_OPTS := --enable-all --vendored-linters --deadline=60s \
+	--dupl-threshold=75 --line-length=120
+GOMETALINTER_EXCLUDE_REGEX := gas
+
+
+#===============================================================================
 #  targets
 #    `make [help]` shows tasks what you should execute.
 #    The other are helper targets.
@@ -69,7 +77,9 @@ install:
 .PHONY: lint
 lint: ## lint go sources and check whether only LICENSE file has copyright sentence
 	glide list || glide install
-	gometalinter --enable-all --deadline=60s $(shell glide novendor)
+	gometalinter $(GOMETALINTER_OPTS)                                                  \
+		$(if $(GOMETALINTER_EXCLUDE_REGEX), --exclude='$(GOMETALINTER_EXCLUDE_REGEX)') \
+		$(shell glide novendor)
 	$(TOOL_DIR)/copyright-check.sh
 
 .PHONY: push-release
