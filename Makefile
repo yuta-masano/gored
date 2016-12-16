@@ -22,7 +22,7 @@ NEW_TAG := $(shell echo "$(LATEST_LOCAL_BRANCH)"      |\
 #===============================================================================
 # バージョンタグは `git tag -a 'x.y.z'` と注釈付きタグであることが前提。
 VERSION := $(shell git describe --always --dirty 2>/dev/null || echo 'no git tag')
-VERSION_PACKAGE := main
+VERSION_PACKAGE := github.com/yuta-masano/gored/cmd
 BUILD_REVISION := $(shell git rev-parse --short HEAD)
 BUILD_WITH := $(shell go version)
 LD_FLAGS := -s -w -X '$(VERSION_PACKAGE).buildVersion=$(VERSION)' \
