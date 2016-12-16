@@ -31,7 +31,7 @@ func run(editor, file string) error {
 		return err
 	}
 	// [linux - Trying to launch an external editor from within a Go program - Stack Overflow]
-	// http://stackoverflow.com/questions/12088138/trying-to-launch-an-external-editor-from-within-a-go-program/12089980#12089980
+	// http://stackoverflow.com/a/12089980
 	editorCmd := exec.Command(cmd, file)
 	var stdin *os.File
 	if runtime.GOOS == windows {
