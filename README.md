@@ -6,8 +6,7 @@ gored は CLI ベースの Redmine 新規チケット作成ツールです。
 
 * Redmine に新規チケットを登録します。
 * チケットを登録する際、エディタを起動して登録内容を適宜編集できます。
-* このとき、clipboard の内容がエディタの中に自動挿入されます。
-* チケット登録に成功するとそのチケットのタイトルと URL を clipboard に追加します。
+* このとき、clipboard の内容がエディタの中に自動挿入されます。 * チケット登録に成功するとそのチケットのタイトルと URL を clipboard に追加します。
 
 ## Motivation
 
@@ -32,7 +31,8 @@ $ go get github.com/yuta-masano/gored
 
 ## Usage
 
-1. $HOME/.config/gored/config.yml または $HOME/.config/gored/config.json で以下を定義する。以下は config.yml の例。
+1. $HOME/.config/gored/config.yml で以下を定義する。  
+   \* が付いているものは必須パラメータです。
 
    ```
    Endpoint: 'https://redmine.example.com'
@@ -41,6 +41,14 @@ $ go get github.com/yuta-masano/gored
      1: 任意のプロジェクト名
      2: 任意のプロジェクト名
      ...
+   Trackers:
+     - バグ
+     - 機能
+     - サポート
+   Priorities
+     - Low
+     - Normal
+     - High
    Template: |-
      ### Single Line Subject ###
      h1. メール
@@ -50,13 +58,29 @@ $ go get github.com/yuta-masano/gored
      </pre>
    ```
 
-   `Projects` は各プロジェクトの project_id を key とし、project_id を同定するための任意のエイリアスを value とした連想配列です。
-   各プロジェクトの project_id は例えば以下の URL から取得できます。
+   #### Endpoint\* (Scalar)
+   アクセスする Redmine のベース URL。
+
+   #### Apikey\* (Scalar)
+   Redmine のアクセストークン。
+
+   #### Projects\* (Sequence of Mappings) 
+   プロジェクトのproject_id を key とし、project_id を同定するための任意のエイリアスを value とした辞書の配列。
+
+   project_id は例えば以下の URL から取得できます。
    ```
    https://redmine.example.com/projects.json
    ```
 
-   `Template` はエディタで開くイシュー登録内容のテンプレートです。  
+   #### Trackers (Sequence)
+   トラッカー。未だ使い道はない。
+
+   #### Priorities (Sequence)
+   優先度。未だ使い道はない。
+
+   #### Template\* (Scalar)
+   エディタで開くイシュー登録内容のテンプレート。
+
    一行目はイシューの「題名」として解釈され、二行目以降がイシューの「説明」と解釈されます。  
    `{{ .Clipboard }}` がクリップボードの内容に置き換えられます。
 
@@ -64,7 +88,7 @@ $ go get github.com/yuta-masano/gored
 3. そのまま以下を実行。
 
    ```
-   $ gored -t 'バグ' -p 'Normal' 任意のプロジェクト名
+   $ gored add 任意のプロジェクト名 -t 'バグ' -p 'Normal'
    ```
 
 4. チケット登録に成功すると、以下のようなそのチケットのタイトルと URL が clipboard に追加される。
@@ -78,16 +102,19 @@ $ go get github.com/yuta-masano/gored
 
 ```
 $ gored --help
-gored creates a new issue on Redmine using your clipboard text,
-sends the added issue page's title and URL into your clipboard.
-
 Usage:
-  gored project_alias [flags]
+  gored [command]
+
+Available Commands:
+  add          add a new issue
+  autocomplete generate shell autocompletion script for gored
+  list         list projects in your config file
+  version      show program's version information and exit
 
 Flags:
-  -p, --priority string   choose Low, Normal, High (default "Normal")
-  -t, --tracker string    choose 情報更新, バグ, 機能, サポート (default "バグ")
-  -v, --version           show program's version number and exit
+  -f, --config-file string   path to the config file (default "/home/masano/.config/gored/config.yml")
+
+Use "gored [command] --help" for more information about a command.
 ```
 
 ## License
