@@ -94,6 +94,12 @@ Flags:
 
 The MIT License (MIT)
 
+## Thanks to
+
+* github.com/atotto/clipboard
+* github.com/spf13/cobra
+* github.com/mattn/go-redmine
+
 ## Author
 
 [Yuta MASANO](https://github.com/yuta-masano)
