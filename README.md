@@ -5,7 +5,7 @@ gored は CLI ベースの Redmine 新規チケット作成ツールです。
 ## Description
 
 * Redmine に新規チケットを登録します。
-* チケットを登録する際、エディタ起動して登録内容を適宜編集できます。
+* チケットを登録する際、エディタを起動して登録内容を適宜編集できます。
 * このとき、clipboard の内容がエディタの中に自動挿入されます。
 * チケット登録に成功するとそのチケットのタイトルと URL を clipboard に追加します。
 
@@ -123,4 +123,4 @@ help           show help
 
 ### リリースフロー
 
-see: [yuta-masano/dp -- リリースフロー](https://github.com/yuta-masano/dp#%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9%E3%83%95%E3%83%AD%E3%83%BC)
+see: [yuta-masano/dp#リリースフロー](https://github.com/yuta-masano/dp#%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9%E3%83%95%E3%83%AD%E3%83%BC)
