@@ -68,6 +68,9 @@ func validateContents(before, after []byte) ([]string, error) {
 
 func issueFromEditor(content string) (*redmine.Issue, error) {
 	tmpFile, err := ioutil.TempFile("", ".gored.")
+	if err != nil {
+		return nil, err
+	}
 	defer func() {
 		if e1 := tmpFile.Close(); e1 != nil { // tmpFile はたぶん Close してから Remove した方がいい気がする。
 			panic(e1)

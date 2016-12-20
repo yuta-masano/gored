@@ -59,5 +59,8 @@ func init() {
 	autocompleteCmd.Flags().StringVarP(&autocompleteType, "type", "",
 		"bash", "autocompletion type (currently only bash supported)")
 	// For bash-completion
-	autocompleteCmd.Flags().SetAnnotation("completionfile", cobra.BashCompFilenameExt, []string{})
+	err := autocompleteCmd.Flags().SetAnnotation("completionfile", cobra.BashCompFilenameExt, []string{})
+	if err != nil {
+		panic(err)
+	}
 }
