@@ -28,13 +28,13 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&cfgFilePath,
 		"config-file", "f",
 		func() (defaultCfgFilePath string) {
-			var configDir string
+			var cfgDir string
 			if runtime.GOOS == windows {
-				configDir = filepath.Join(os.Getenv("APPDATA"), "gored")
+				cfgDir = filepath.Join(os.Getenv("APPDATA"), "gored")
 			} else {
-				configDir = filepath.Join(os.Getenv("HOME"), ".config", "gored")
+				cfgDir = filepath.Join(os.Getenv("HOME"), ".config", "gored")
 			}
-			return filepath.Join(configDir, "config.yml")
+			return filepath.Join(cfgDir, "config.yml")
 		}(),
 		"path to the config file")
 }
