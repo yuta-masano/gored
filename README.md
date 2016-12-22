@@ -5,8 +5,9 @@ gored は CLI ベースの Redmine 新規チケット作成ツールです。
 ## Description
 
 * Redmine に新規チケットを登録します。
-* チケットを登録する際、エディタを起動して登録内容を適宜編集できます。
-* このとき、clipboard の内容がエディタの中に自動挿入されます。 * チケット登録に成功するとそのチケットのタイトルと URL を clipboard に追加します。
+* チケットを登録する際、エディタを起動して登録内容を編集できます。
+* 編集時、登録内容として clipboard の内容が自動挿入されます。
+* チケット登録に成功するとそのチケットのタイトルと URL を clipboard に追加します。
 
 ## Motivation
 
@@ -31,10 +32,9 @@ $ go get github.com/yuta-masano/gored
 
 ## Usage
 
-1. $HOME/.config/gored/config.yml で以下を定義する。  
-   \* が付いているものは必須パラメータです。
-
+1. $HOME/.config/gored/config.yml を作成する。  
    ```
+   # sample
    Endpoint: 'https://redmine.example.com'
    Apikey: アクセスキー
    Projects:
@@ -58,34 +58,9 @@ $ go get github.com/yuta-masano/gored
      </pre>
    ```
 
-   #### Endpoint\* (Scalar)
-   アクセスする Redmine のベース URL。
-
-   #### Apikey\* (Scalar)
-   Redmine のアクセストークン。
-
-   #### Projects\* (Sequence of Mappings) 
-   プロジェクトのproject_id を key とし、project_id を同定するための任意のエイリアスを value とした辞書の配列。
-
-   project_id は例えば以下の URL から取得できます。
-   ```
-   https://redmine.example.com/projects.json
-   ```
-
-   #### Trackers (Sequence)
-   トラッカー。未だ使い道はない。
-
-   #### Priorities (Sequence)
-   優先度。未だ使い道はない。
-
-   #### Template\* (Scalar)
-   エディタで開くイシュー登録内容のテンプレート。
-
-   一行目はイシューの「題名」として解釈され、二行目以降がイシューの「説明」と解釈されます。  
-   `{{ .Clipboard }}` がクリップボードの内容に置き換えられます。
-
 2. メールの内容を clipboard に登録しておく。
-3. そのまま以下を実行。
+
+3. そのまま以下を実行。エディタが起動するので内容を編集後に保存して終了する。
 
    ```
    $ gored add 任意のプロジェクト名 -t 'バグ' -p 'Normal'
@@ -116,6 +91,35 @@ Flags:
 
 Use "gored [command] --help" for more information about a command.
 ```
+
+### config.yml
+**\*** がついているものは必須パラメータです。
+
+* **Endpoint\* (Scalar)**  
+  アクセスする Redmine のベース URL。
+
+* ** Apikey\* (Scalar)**  
+  Redmine のアクセストークン。
+
+* ** Projects\* (Sequence of Mappings)**  
+  プロジェクトのproject_id を key とし、project_id を同定するための任意のエイリアスを value とした辞書の配列。
+
+  project_id は例えば以下の URL から取得できます。
+  ```
+  https://redmine.example.com/projects.json
+  ```
+
+* ** Trackers (Sequence)**  
+  トラッカー。未だ使い道はない。
+
+* ** Priorities (Sequence)**  
+  優先度。未だ使い道はない。
+
+* ** Template\* (Scalar)**  
+  エディタで開くイシュー登録内容のテンプレート。
+  
+  一行目はイシューの「題名」として解釈され、二行目以降がイシューの「説明」と解釈されます。  
+  `{{ .Clipboard }}` がクリップボードの内容に置き換えられます。
 
 ## License
 
