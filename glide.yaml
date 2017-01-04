@@ -3,3 +3,5 @@ import:
 - package: github.com/atotto/clipboard
 - package: github.com/spf13/cobra
 - package: github.com/mattn/go-redmine
+- package: github.com/yuta-masano/go-tempedit
+  version: ^0.1.0

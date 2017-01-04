@@ -49,7 +49,7 @@ $ go get github.com/yuta-masano/gored
      - Low
      - Normal
      - High
-   Template: |-
+   Template: |
      ### Single Line Subject ###
      h1. メール
 

@@ -4,15 +4,18 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"strings"
 
 	"github.com/atotto/clipboard"
-	redmine "github.com/mattn/go-redmine"
+	"github.com/mattn/go-redmine"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/yuta-masano/go-tempedit"
 )
+
+const defaultContent = `### on line subject
+### description
+`
 
 // addCmd represents the add command.
 var addCmd = &cobra.Command{
@@ -46,66 +49,32 @@ func censor(clipboardText string) string {
 	return clipboardText
 }
 
-func validateContents(before, after []byte) ([]string, error) {
-	// see: TestValidateContents(t *testing.T)
-	if bytes.Equal(before, after) {
-		return nil, errors.New("edit aborted")
-	}
-	if bytes.Equal(bytes.TrimRight(before, "\n"), bytes.TrimRight(after, "\n")) {
-		return nil, errors.New("no changed")
-	}
-	// 空文字は不許可です。
-	if string(after) == "" {
-		return nil, errors.New("canceled")
-	}
-	// Split は分割対象がないとそのまま対象がスライスの 0 番目の要素になる。
-	lines := strings.Split(string(after), "\n")
-	if len(lines) == 0 { // 起こり得るのか？
-		return nil, errors.New("canceled")
-	}
-	return lines, nil
-}
-
 func issueFromEditor(content string) (*redmine.Issue, error) {
-	tmpFile, err := ioutil.TempFile("", ".gored.")
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		if e1 := tmpFile.Close(); e1 != nil { // tmpFile はたぶん Close してから Remove した方がいい気がする。
-			panic(e1)
+	edit := tempedit.New(cfg.Editor)
+	defer edit.CleanTempFile()
+
+	if content == "" {
+		if err := edit.Write(defaultContent); err != nil {
+			return nil, err
 		}
-		if e2 := os.Remove(tmpFile.Name()); e2 != nil {
-			panic(e2)
+	} else {
+		err := edit.WriteTemplate(
+			cfg.Template,
+			struct{ Clipboard string }{Clipboard: content},
+		)
+		if err != nil {
+			return nil, err
 		}
-	}()
 
-	// FIXME: 2016-12-16
-	// Open, Close と別の関数でファイル操作している。
-	// たぶん、あまりよくない。
-	err = tmpWrite(tmpFile, content)
-	if err != nil {
+	}
+	if err := edit.Run(); err != nil {
 		return nil, err
 	}
-
-	before, err := ioutil.ReadFile(tmpFile.Name())
-	if err != nil {
-		return nil, err
-	}
-	editor := getEditor()
-	if err = run(editor, tmpFile.Name()); err != nil {
-		return nil, err
-	}
-	after, err := ioutil.ReadFile(tmpFile.Name())
-	if err != nil {
+	if err := edit.FileChanged(); err != nil {
 		return nil, err
 	}
 
-	lines, err := validateContents(before, after)
-	if err != nil {
-		return nil, err
-	}
-
+	lines := strings.Split(edit.String(), "\n")
 	var issue redmine.Issue
 	if len(lines) == 1 {
 		issue.Subject = lines[0]
