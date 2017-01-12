@@ -7,8 +7,8 @@ set -o nounset -o errexit -o pipefail
 export LC_ALL=C LANG=C
 
 # trap for `mktemp`
-# trap 'rm -f /tmp/tmp.*."${0##*/}"'         0        # EXIT
-# trap 'rm -f /tmp/tmp.*."${0##*/}"; exit 1' 1 2 3 15 # HUP QUIT INT TERM
+trap 'rm -f /tmp/tmp.*."${0##*/}"'         0        # EXIT
+trap 'rm -f /tmp/tmp.*."${0##*/}"; exit 1' 1 2 3 15 # HUP QUIT INT TERM
 
 # 既存の CHANGELOG　の先頭に新しい変更履歴を挿入したいので、
 #   1. 空の一時ファイルに変更したい情報を記入。
