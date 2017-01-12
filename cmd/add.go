@@ -9,7 +9,6 @@ import (
 	"github.com/atotto/clipboard"
 	"github.com/mattn/go-redmine"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/yuta-masano/go-tempedit"
 )
 
@@ -32,6 +31,8 @@ var (
 	tracker  string
 	priority string
 )
+
+var projectID int
 
 func init() {
 	RootCmd.AddCommand(addCmd)
@@ -129,7 +130,7 @@ func createIssue(clipboardText string) error {
 	}
 
 	issue.ProjectId, issue.TrackerId, issue.PriorityId =
-		viper.GetInt("ProjectID"), retriveTracker(trackers).Id, retrievePriority(priorities).Id
+		projectID, retriveTracker(trackers).Id, retrievePriority(priorities).Id
 	addedIssue, err := cl.CreateIssue(*issue)
 	if err != nil {
 		return err
@@ -142,12 +143,11 @@ func runAdd(cmd *cobra.Command, args []string) error {
 	if len(args) < 1 {
 		return errors.New("specify a project to add a new issue")
 	}
-	projectID, err := cfg.getProjetID(args[0])
+	var err error
+	projectID, err = cfg.getProjetID(args[0])
 	if err != nil {
 		return err
 	}
-	viper.Set("ProjectID", projectID)
-
 	clipboardText, err := clipboard.ReadAll()
 	if err != nil {
 		return err
