@@ -10,9 +10,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-// gometalinter がそうしろって。。。
-const windows string = "windows"
-
 // 終了ステータスコード。
 const (
 	exitOK int = iota
@@ -29,7 +26,7 @@ func init() {
 		"config-file", "f",
 		func() (defaultCfgFilePath string) {
 			var cfgDir string
-			if runtime.GOOS == windows {
+			if runtime.GOOS == "windows" {
 				cfgDir = filepath.Join(os.Getenv("APPDATA"), "gored")
 			} else {
 				cfgDir = filepath.Join(os.Getenv("HOME"), ".config", "gored")
