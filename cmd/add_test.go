@@ -1,27 +1,92 @@
 package cmd
 
-import "testing"
+import (
+	"reflect"
+	"testing"
 
-func TestSensitiveCensor(t *testing.T) {
-	inputs := []string{"foo", "foo\n", "foo\nbar"}
-	expect := ""
+	"github.com/mattn/go-redmine"
+)
 
-	for _, v := range inputs {
-		output := censor(v)
-		if output != expect {
-			t.Errorf("output shoud be %s, but %s", expect, output)
-			t.Fail()
+func TestCensor(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		input  string
+		expect string
+	}{
+		{
+			input:  "foo",
+			expect: "",
+		},
+		{
+			input:  "foo\n",
+			expect: "",
+		},
+		{
+			input:  "foo\nbar",
+			expect: "",
+		},
+		{
+			input:  "foo\nbar\n",
+			expect: "foo\nbar\n",
+		},
+	}
+
+	for _, test := range testCases {
+		output := censor(test.input)
+		if output != test.expect {
+			t.Fatalf("expect=%s, but got=%s", test.expect, output)
 		}
 	}
 }
 
-func TestSafetyCensor(t *testing.T) {
-	input := "foo\nbar\n"
-	expect := "foo\nbar\n"
+// go-redmine のモック。
+type fakeRedmineCL struct {
+	redmineder
+}
 
-	output := censor(input)
-	if output != expect {
-		t.Errorf("output shoud be %s, but %s", expect, output)
-		t.Fail()
+func (f fakeRedmineCL) Trackers() ([]redmine.IdName, error) {
+	return []redmine.IdName{{Id: 1, Name: "tracker1"}}, nil
+}
+
+func (f fakeRedmineCL) IssuePriorities() ([]redmine.IssuePriority, error) {
+	return []redmine.IssuePriority{{Id: 11, Name: "priority0"}}, nil
+}
+
+func (f fakeRedmineCL) CreateIssue(issue redmine.Issue) (*redmine.Issue, error) {
+	return &issue, nil
+}
+
+func TestCreateIssue(t *testing.T) {
+	t.Parallel()
+
+	tracker = "tracker1"
+	priority = "priority0"
+	projectID = 111
+	cl := new(fakeRedmineCL)
+
+	testCases := []struct {
+		input  string
+		expect *redmine.Issue
+	}{
+		{
+			input:  "foo",
+			expect: &redmine.Issue{Subject: "foo", ProjectId: 111, TrackerId: 1, PriorityId: 11},
+		},
+		{
+			input:  "foo\n",
+			expect: &redmine.Issue{Subject: "foo", ProjectId: 111, TrackerId: 1, PriorityId: 11},
+		},
+		{
+			input:  "foo\nbar\n",
+			expect: &redmine.Issue{Subject: "foo", Description: "bar\n", ProjectId: 111, TrackerId: 1, PriorityId: 11},
+		},
+	}
+
+	for _, test := range testCases {
+		issue, _ := createIssue(test.input, cl)
+		if !reflect.DeepEqual(test.expect, issue) {
+			t.Fatalf("expect=%v, but got=%v", test.expect, issue)
+		}
 	}
 }

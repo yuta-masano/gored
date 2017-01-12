@@ -42,21 +42,24 @@ func init() {
 }
 
 func censor(clipboardText string) string {
-	// clipboard が 2 行以下 = クリップボードにパスワードが入っている可能性ありとみなして
-	// clipboardText は使わない。
+	// clipboardText が 2 行以下 = クリップボードにパスワードが入っている可能性あり
+	// とみなして clipboardText は使わない。
 	if len(strings.Split(clipboardText, "\n")) <= 2 {
 		return ""
 	}
 	return clipboardText
 }
 
-func issueFromEditor(content string) (*redmine.Issue, error) {
+func contentFromEditor(content string) (string, error) {
 	edit := tempedit.New(cfg.Editor)
+	if err := edit.MakeTemp("", ".gored."); err != nil {
+		return "", err
+	}
 	defer edit.CleanTempFile()
 
 	if content == "" {
 		if err := edit.Write(defaultContent); err != nil {
-			return nil, err
+			return "", err
 		}
 	} else {
 		err := edit.WriteTemplate(
@@ -64,25 +67,17 @@ func issueFromEditor(content string) (*redmine.Issue, error) {
 			struct{ Clipboard string }{Clipboard: content},
 		)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 
 	}
 	if err := edit.Run(); err != nil {
-		return nil, err
+		return "", err
 	}
 	if err := edit.FileChanged(); err != nil {
-		return nil, err
+		return "", err
 	}
-
-	lines := strings.Split(edit.String(), "\n")
-	var issue redmine.Issue
-	if len(lines) == 1 {
-		issue.Subject = lines[0]
-	} else {
-		issue.Subject, issue.Description = lines[0], strings.Join(lines[1:], "\n")
-	}
-	return &issue, nil
+	return edit.String(), nil
 }
 
 func retriveTracker(trackers []redmine.IdName) *redmine.IdName {
@@ -103,6 +98,33 @@ func retrievePriority(priorities []redmine.IssuePriority) *redmine.IdName {
 	return new(redmine.IdName)
 }
 
+func createIssue(issueText string, cl redmineder) (*redmine.Issue, error) {
+	var issue redmine.Issue
+
+	lines := strings.Split(issueText, "\n")
+	if len(lines) == 1 {
+		issue.Subject = lines[0]
+	} else {
+		issue.Subject, issue.Description = lines[0], strings.Join(lines[1:], "\n")
+	}
+	trackers, err := cl.Trackers()
+	if err != nil {
+		return nil, err
+	}
+	priorities, err := cl.IssuePriorities()
+	if err != nil {
+		return nil, err
+	}
+
+	issue.ProjectId, issue.TrackerId, issue.PriorityId =
+		projectID, retriveTracker(trackers).Id, retrievePriority(priorities).Id
+	addedIssue, err := cl.CreateIssue(issue)
+	if err != nil {
+		return nil, err
+	}
+	return addedIssue, nil
+}
+
 func sendClipboard(addedIssue *redmine.Issue) error {
 	buff := new(bytes.Buffer)
 	fmt.Fprintf(buff, " [%s #%d: %s - %s - Redmine]\n %s/issues/%d\n",
@@ -111,31 +133,17 @@ func sendClipboard(addedIssue *redmine.Issue) error {
 	return clipboard.WriteAll(buff.String())
 }
 
-func createIssue(clipboardText string) error {
-	var issue *redmine.Issue
-
-	issue, err := issueFromEditor(censor(clipboardText))
+func addIssue(clipboardText string) error {
+	safeText := censor(clipboardText)
+	issueText, err := contentFromEditor(safeText)
 	if err != nil {
 		return err
 	}
-
 	cl := redmine.NewClient(cfg.Endpoint, cfg.Apikey)
-	trackers, err := cl.Trackers()
+	addedIssue, err := createIssue(issueText, cl)
 	if err != nil {
 		return err
 	}
-	priorities, err := cl.IssuePriorities()
-	if err != nil {
-		return err
-	}
-
-	issue.ProjectId, issue.TrackerId, issue.PriorityId =
-		projectID, retriveTracker(trackers).Id, retrievePriority(priorities).Id
-	addedIssue, err := cl.CreateIssue(*issue)
-	if err != nil {
-		return err
-	}
-
 	return sendClipboard(addedIssue)
 }
 
@@ -152,7 +160,7 @@ func runAdd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if err := createIssue(clipboardText); err != nil {
+	if err := addIssue(clipboardText); err != nil {
 		return fmt.Errorf("%s", err)
 	}
 	return nil
