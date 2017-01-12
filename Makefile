@@ -11,11 +11,11 @@ PKG_DEST_DIR := $(RELEASE_DIR)/.pkg
 ALL_OS := linux
 ALL_ARCH := amd64
 
-LATEST_LOCAL_BRANCH := $(subst * ,,$(shell git branch --sort='-committerdate' |\
-	head --lines=1))
-NEW_TAG := $(shell echo "$(LATEST_LOCAL_BRANCH)"      |\
-	grep --only-matching -E '[0-9]+\.[0-9]+\.[0-9]+')
-
+LATEST_LOCAL_DEVEL_BRANCH := $(subst * ,,$(shell git branch --sort='-committerdate' \
+	| grep --invert-match master                                                    \
+	| head --lines=1))
+NEW_TAG := $(shell echo "$(LATEST_LOCAL_DEVEL_BRANCH)" \
+	| grep --only-matching -E '[0-9]+\.[0-9]+\.[0-9]+')
 
 #===============================================================================
 #  version information embedding
@@ -25,11 +25,11 @@ VERSION := $(shell git describe --always --dirty 2>/dev/null || echo 'no git tag
 VERSION_PACKAGE := github.com/yuta-masano/gored/cmd
 BUILD_REVISION := $(shell git rev-parse --short HEAD)
 BUILD_WITH := $(shell go version)
+STATIC_FLAGS := -a -tags netgo -installsuffix netgo
 LD_FLAGS := -s -w -X '$(VERSION_PACKAGE).buildVersion=$(VERSION)' \
 	-X '$(VERSION_PACKAGE).buildRevision=$(BUILD_REVISION)'       \
 	-X '$(VERSION_PACKAGE).buildWith=$(BUILD_WITH)'               \
 	-extldflags -static
-
 
 #===============================================================================
 #  lint options
@@ -38,13 +38,11 @@ GOMETALINTER_OPTS := --enable-all --vendored-linters --deadline=60s \
 	--dupl-threshold=75 --line-length=120
 GOMETALINTER_EXCLUDE_REGEX := gas
 
-
 #===============================================================================
 #  targets
 #    `make [help]` shows tasks what you should execute.
 #    The other are helper targets.
 #===============================================================================
-SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
 # [Add a help target to a Makefile that will allow all targets to be self documenting]
@@ -54,9 +52,9 @@ help: ## show help
 	@echo 'USAGE: make [target]'
 	@echo
 	@echo 'TARGETS:'
-	@grep -E '^[-_: a-zA-Z0-9]+##' $(MAKEFILE_LIST)  |\
-		sed -e 's/:[-_ a-zA-Z0-9]\+/:/'              |\
-		column -t -s ':#'
+	@grep -E '^[-_: a-zA-Z0-9]+##' $(MAKEFILE_LIST) \
+		| sed 's/:[-_ a-zA-Z0-9]\+/:/'              \
+		| column -t -s ':#'
 
 # install development tools
 .PHONY: setup
@@ -72,31 +70,32 @@ deps-install: setup ## install vendor packages based on glide.lock or glide.yaml
 
 .PHONY: install
 install:
-	CGO_ENABLED=0 go install -a -tags netgo -installsuffix netgo -ldflags "$(LD_FLAGS)"
+	CGO_ENABLED=0 go install $(subst -a ,,$(STATIC_FLAGS)) -ldflags "$(LD_FLAGS)"
 
 .PHONY: lint
-lint: ## lint go sources and check whether only LICENSE file has copyright sentence
-	glide list || glide install
+lint: install ## lint go sources and check whether only LICENSE file has copyright sentence
 	gometalinter $(GOMETALINTER_OPTS)                                                  \
 		$(if $(GOMETALINTER_EXCLUDE_REGEX), --exclude='$(GOMETALINTER_EXCLUDE_REGEX)') \
 		$(shell glide novendor)
-	$(TOOL_DIR)/copyright-check.sh
+	$(TOOL_DIR)/copyright_check.sh
 
-.PHONY: push-release
-push-release: lint test ## update CHANGELOG and push all of the your development works
-	$(TOOL_DIR)/add-changelog.sh "$(NEW_TAG)"
+.PHONY: push-release-tag
+push-release-tag: lint test ## update CHANGELOG and push all of the your development works
+	$(TOOL_DIR)/add_changelog.sh "$(NEW_TAG)"
 	git checkout master
-	git merge --ff "$(LATEST_LOCAL_BRANCH)"
+	git merge --ff "$(LATEST_LOCAL_DEVEL_BRANCH)"
 	git push
-	$(TOOL_DIR)/add-release-tag.sh "$(NEW_TAG)"
+	$(TOOL_DIR)/add_release_tag.sh "$(NEW_TAG)"
 
 .PHONY: test
 test: ## go test
-	go test -v $(shell glide novendor)
+	go test -v -cover $(shell glide novendor)
 
 .PHONY: all-build
 all-build: lint test
-	$(TOOL_DIR)/build-static-bins.sh "$(ALL_OS)" "$(ALL_ARCH)" "$(LD_FLAGS)" "$(PKG_DEST_DIR)" "$(BINARY)"
+	$(TOOL_DIR)/build_static_bins.sh "$(ALL_OS)" "$(ALL_ARCH)" \
+		"$(STATIC_FLAGS)" "$(LD_FLAGS)"                        \
+		"$(PKG_DEST_DIR)" "$(BINARY)"
 
 .PHONY: all-archive
 all-archive:
