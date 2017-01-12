@@ -43,17 +43,28 @@ func init() {
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() int {
 	viper.SetConfigFile(cfgFilePath)
-	if err := viper.ReadInConfig(); err != nil {
-		fmt.Fprintf(os.Stderr, "failed in reading config file: %s", err)
+	f, err := os.Open(cfgFilePath)
+	if err != nil {
+		panic(err)
+	}
+	defer func() {
+		err := f.Close()
+		if err != nil {
+			panic(err)
+		}
+
+	}()
+	if err := viper.ReadConfig(f); err != nil {
+		fmt.Fprintf(os.Stderr, "failed in reading config file: %s\n", err)
 		return exitNG
 	}
 	if err := viper.Unmarshal(&cfg); err != nil {
-		fmt.Fprintf(os.Stderr, "failed in setting config parameters: %s", err)
+		fmt.Fprintf(os.Stderr, "failed in setting config parameters: %s\n", err)
 		return exitNG
 	}
 	for _, param := range []string{"Endpoint", "Apikey", "Trackers", "Priorities"} {
 		if !viper.IsSet(param) {
-			fmt.Fprintf(os.Stdout, "failed in reading config parameter: %s must be specified", param)
+			fmt.Fprintf(os.Stdout, "failed in reading config parameter: %s must be specified\n", param)
 			return exitNG
 		}
 	}
