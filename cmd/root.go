@@ -40,18 +40,7 @@ func init() {
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() int {
 	viper.SetConfigFile(cfgFilePath)
-	f, err := os.Open(cfgFilePath)
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		err := f.Close()
-		if err != nil {
-			panic(err)
-		}
-
-	}()
-	if err := viper.ReadConfig(f); err != nil {
+	if err := viper.ReadInConfig(); err != nil {
 		fmt.Fprintf(os.Stderr, "failed in reading config file: %s\n", err)
 		return exitNG
 	}
