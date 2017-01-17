@@ -98,10 +98,10 @@ Use "gored [command] --help" for more information about a command.
 * **Endpoint\* (Scalar)**  
   アクセスする Redmine のベース URL。
 
-* ** Apikey\* (Scalar)**  
+* **Apikey\* (Scalar)**  
   Redmine のアクセストークン。
 
-* ** Projects\* (Sequence of Mappings)**  
+* **Projects\* (Sequence of Mappings)**  
   プロジェクトのproject_id を key とし、project_id を同定するための任意のエイリアスを value とした辞書の配列。
 
   project_id は例えば以下の URL から取得できます。
@@ -109,13 +109,13 @@ Use "gored [command] --help" for more information about a command.
   https://redmine.example.com/projects.json
   ```
 
-* ** Trackers (Sequence)**  
+* **Trackers (Sequence)**  
   トラッカー。未だ使い道はない。
 
-* ** Priorities (Sequence)**  
+* **Priorities (Sequence)**  
   優先度。未だ使い道はない。
 
-* ** Template\* (Scalar)**  
+* **Template\* (Scalar)**  
   エディタで開くイシュー登録内容のテンプレート。
   
   一行目はイシューの「題名」として解釈され、二行目以降がイシューの「説明」と解釈されます。  
@@ -125,7 +125,9 @@ Use "gored [command] --help" for more information about a command.
 
 The MIT License (MIT)
 
-## Thanks to
+## Thanks
+
+gored は以下のパッケージを利用しています。これらについてはそれぞれのパッケージのライセンスが適用されます。
 
 * github.com/atotto/clipboard
 * github.com/spf13/cobra
