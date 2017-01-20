@@ -66,19 +66,19 @@ func TestCreateIssue(t *testing.T) {
 	cl := new(fakeRedmineCL)
 
 	testCases := []struct {
-		input  string
+		input  []string
 		expect *redmine.Issue
 	}{
 		{
-			input:  "foo",
+			input:  []string{"foo"},
 			expect: &redmine.Issue{Subject: "foo", ProjectId: 111, TrackerId: 1, PriorityId: 11},
 		},
 		{
-			input:  "foo\n",
+			input:  []string{"foo", ""},
 			expect: &redmine.Issue{Subject: "foo", ProjectId: 111, TrackerId: 1, PriorityId: 11},
 		},
 		{
-			input:  "foo\nbar\n",
+			input:  []string{"foo", "bar", ""},
 			expect: &redmine.Issue{Subject: "foo", Description: "bar\n", ProjectId: 111, TrackerId: 1, PriorityId: 11},
 		},
 	}

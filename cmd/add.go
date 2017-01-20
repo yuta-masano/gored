@@ -50,16 +50,16 @@ func censor(clipboardText string) string {
 	return clipboardText
 }
 
-func contentFromEditor(content string) (string, error) {
+func contentFromEditor(content string) ([]string, error) {
 	edit := tempedit.New(cfg.Editor)
 	if err := edit.MakeTemp("", ".gored."); err != nil {
-		return "", err
+		return nil, err
 	}
 	defer edit.CleanTempFile()
 
 	if content == "" {
 		if err := edit.Write(defaultContent); err != nil {
-			return "", err
+			return nil, err
 		}
 	} else {
 		err := edit.WriteTemplate(
@@ -67,17 +67,17 @@ func contentFromEditor(content string) (string, error) {
 			struct{ Clipboard string }{Clipboard: content},
 		)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 	}
 	if err := edit.Run(); err != nil {
-		return "", err
+		return nil, err
 	}
-	if err := edit.FileChanged(); err != nil {
-		return "", err
+	if changed, err := edit.FileChanged(); !changed {
+		return nil, err
 	}
-	return edit.String(), nil
+	return edit.Line(), nil
 }
 
 func retriveTracker(trackers []redmine.IdName) *redmine.IdName {
@@ -98,14 +98,13 @@ func retrievePriority(priorities []redmine.IssuePriority) *redmine.IdName {
 	return new(redmine.IdName)
 }
 
-func createIssue(issueText string, cl redmineder) (*redmine.Issue, error) {
+func createIssue(issueTextLine []string, cl redmineder) (*redmine.Issue, error) {
 	var issue redmine.Issue
 
-	lines := strings.Split(issueText, "\n")
-	if len(lines) == 1 {
-		issue.Subject = lines[0]
+	if len(issueTextLine) == 1 {
+		issue.Subject = issueTextLine[0]
 	} else {
-		issue.Subject, issue.Description = lines[0], strings.Join(lines[1:], "\n")
+		issue.Subject, issue.Description = issueTextLine[0], strings.Join(issueTextLine[1:], "\n")
 	}
 	trackers, err := cl.Trackers()
 	if err != nil {
@@ -135,12 +134,12 @@ func sendClipboard(addedIssue *redmine.Issue) error {
 
 func addIssue(clipboardText string) error {
 	safeText := censor(clipboardText)
-	issueText, err := contentFromEditor(safeText)
+	issueTextLine, err := contentFromEditor(safeText)
 	if err != nil {
 		return err
 	}
 	cl := redmine.NewClient(cfg.Endpoint, cfg.Apikey)
-	addedIssue, err := createIssue(issueText, cl)
+	addedIssue, err := createIssue(issueTextLine, cl)
 	if err != nil {
 		return err
 	}

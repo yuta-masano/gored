@@ -1,5 +1,5 @@
 hash: 4b3354f60c9e3bb6872a9c9bcf628196292d0f3022cc55b387f356408e8301ff
-updated: 2017-01-12T15:39:30.411979273+09:00
+updated: 2017-01-20T11:46:11.626612659+09:00
 imports:
 - name: github.com/atotto/clipboard
   version: bb272b845f1112e10117e3e45ce39f690c0001ad
@@ -19,7 +19,7 @@ imports:
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/magiconair/properties
-  version: 9c47895dc1ce54302908ab8a43385d1f5df2c11c
+  version: b3b15ef068fd0b17ddf408a23669f20811d194d2
 - name: github.com/mattn/go-redmine
   version: 288ef38085be86419f6dff81366e618f612feb3c
 - name: github.com/mitchellh/mapstructure
@@ -27,7 +27,7 @@ imports:
 - name: github.com/pelletier/go-buffruneio
   version: df1e16fde7fc330a0ca68167c23bf7ed6ac31d6d
 - name: github.com/pelletier/go-toml
-  version: 439fbba1f887c286024370cb4f281ba815c4c7d7
+  version: a1f048ba24490f9b0674a67e1ce995d685cddf4a
 - name: github.com/spf13/afero
   version: 72b31426848c6ef12a7a8e216708cb0d1530f074
   subpackages:
@@ -43,13 +43,13 @@ imports:
 - name: github.com/spf13/viper
   version: 5ed0fc31f7f453625df314d8e66b9791e8d13003
 - name: github.com/yuta-masano/go-tempedit
-  version: f1c47d669e1841a69e84cfdd3e8aa0c2112deb34
+  version: 857d4d9d216f31134050d1ed180c94654bc069f8
 - name: golang.org/x/sys
   version: d75a52659825e75fff6158388dddc6a5b04f9ba5
   subpackages:
   - unix
 - name: golang.org/x/text
-  version: 44f4f658a783b0cee41fe0a23b8fc91d9c120558
+  version: f72d8390a633d5dfb0cc84043294db9f6c935756
   subpackages:
   - transform
   - unicode/norm
