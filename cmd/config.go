@@ -20,7 +20,7 @@ func (c *config) getProjetID(name string) (int, error) {
 		}
 	}
 	// project_id は 1 から始まる（と思われる）。
-	return 0, fmt.Errorf("%s is invalid priority", name)
+	return 0, fmt.Errorf("%s is invalid project", name)
 }
 
 var cfg config
