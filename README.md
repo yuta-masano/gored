@@ -93,7 +93,7 @@ Use "gored [command] --help" for more information about a command.
 ```
 
 ### config.yml
-**\*** がついているものは必須パラメータです。
+\* がついているものは必須パラメータです。
 
 * **Endpoint\* (Scalar)**  
   アクセスする Redmine のベース URL。
