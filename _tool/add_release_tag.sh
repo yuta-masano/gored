@@ -6,12 +6,15 @@ set -o nounset -o errexit -o pipefail
 # Prevent commands misbehaving due to locale differences.
 export LC_ALL=C LANG=C
 
-NEW_TAG="${1}"
+# 注釈付きタグを作成してリモートに push する。
+# 注釈の内容は今回のリリース文の CHANGELOG の内容。
+
+NEW_TAG="$1"
 tag_list="$(git describe --always --dirty)"
 
-echo "${tag_list}" | grep --quiet "${NEW_TAG}" && :
-if [ ${?} -eq 0 ]; then
-	echo "${NEW_TAG} already exists" >&2
+echo "$tag_list" | grep --quiet "$NEW_TAG" && :
+if [ $? -eq 0 ]; then
+	echo "$NEW_TAG already exists" >&2
 	exit 1
 fi
 
@@ -20,25 +23,25 @@ fi
 is_target_tag=false
 buff=""
 while IFS= read line; do
-	echo "${line}" | grep --quiet "${NEW_TAG}" && :
-	if [ ${?} -eq 0 ]; then
+	echo "$line" | grep --quiet "$NEW_TAG" && :
+	if [ $? -eq 0 ]; then
 		is_target_tag=true
-		buff+="${line}\n"
+		buff+="$line\n"
 		continue
 	fi
 
-	echo "${line}" | grep --quiet -E "^[0-9]+\.[0-9]+\.[0-9]+" && :
-	if [ ${?} -eq 0 ] && (${is_target_tag}); then
+	echo "$line" | grep --quiet -E "^[0-9]+\.[0-9]+\.[0-9]+" && :
+	if [ $? -eq 0 ] && ($is_target_tag); then
 		is_target_tag=false
 		continue
 	fi
 
-	if (${is_target_tag}); then
-		buff+="${line}\n"
+	if ($is_target_tag); then
+		buff+="$line\n"
 		continue
 	fi
 done < ./CHANGELOG
 
-changes="$(echo "${buff}" | sed -e 's/\\n\\n//' -e 's/\\n/\n/g')"
-git tag -a "${NEW_TAG}" -m "${changes}"
+changes="$(echo "$buff" | sed -e 's/\\n\\n//' -e 's/\\n/\n/g')"
+git tag -a "$NEW_TAG" -m "$changes"
 git push --tags

@@ -63,6 +63,7 @@ setup:
 	go get -v -u github.com/alecthomas/gometalinter
 	go get -v -u github.com/tcnksm/ghr
 	gometalinter --install
+	cp -a $(TOOL_DIR)/git_hooks/* .git/hooks/
 
 .PHONY: deps-install
 deps-install: setup ## install vendor packages based on glide.lock or glide.yaml
@@ -70,6 +71,8 @@ deps-install: setup ## install vendor packages based on glide.lock or glide.yaml
 
 .PHONY: install
 install:
+	go install $(shell cat glide.yaml \
+		| sed -ne 's/^- package: /.\/vendor\//p')
 	CGO_ENABLED=0 go install $(subst -a ,,$(STATIC_FLAGS)) -ldflags "$(LD_FLAGS)"
 
 .PHONY: lint
