@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 #===============================================================================
 #  release information
 #===============================================================================
@@ -59,7 +61,9 @@ help: ## show help
 # install development tools
 .PHONY: setup
 setup:
-	type -a glide &>/dev/null || curl https://glide.sh/get | sh
+ifeq ($(shell type -a glide 2>/dev/null),)
+	curl https://glide.sh/get | sh
+endif
 	go get -v -u github.com/alecthomas/gometalinter
 	go get -v -u github.com/tcnksm/ghr
 	gometalinter --install
@@ -71,8 +75,9 @@ deps-install: setup ## install vendor packages based on glide.lock or glide.yaml
 
 .PHONY: install
 install:
-	go install $(shell cat glide.yaml \
-		| sed -ne 's/^- package: /.\/vendor\//p')
+ifneq ($(wildcard glide.yaml),)
+	go install $(shell sed --quiet 's/^- package: /.\/vendor\//p' glide.yaml) || :
+endif
 	CGO_ENABLED=0 go install $(subst -a ,,$(STATIC_FLAGS)) -ldflags "$(LD_FLAGS)"
 
 .PHONY: lint
@@ -112,3 +117,11 @@ release: all-build all-archive ## build binaries for all platforms and upload th
 clean: ## uninstall the binary and remove $(RELEASE_DIR) directory
 	go clean -i .
 	rm -rf $(RELEASE_DIR)
+
+.PHONY: thanks
+thanks:
+ifneq ($(wildcard glide.yaml),)
+	@sed -n 's/^- package: /* /p' glide.yaml | sort
+else
+	@echo 'There is no thirdparty package.'
+endif
