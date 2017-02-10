@@ -130,8 +130,9 @@ The MIT License (MIT)
 gored は以下のパッケージを利用しています。これらについてはそれぞれのパッケージのライセンスが適用されます。
 
 * github.com/atotto/clipboard
-* github.com/spf13/cobra
 * github.com/mattn/go-redmine
+* github.com/spf13/cobra
+* github.com/yuta-masano/go-tempedit
 
 ## Author
 

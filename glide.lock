@@ -1,5 +1,5 @@
 hash: 4b3354f60c9e3bb6872a9c9bcf628196292d0f3022cc55b387f356408e8301ff
-updated: 2017-01-20T11:46:11.626612659+09:00
+updated: 2017-02-10T15:04:40.223515689+09:00
 imports:
 - name: github.com/atotto/clipboard
   version: bb272b845f1112e10117e3e45ce39f690c0001ad
@@ -43,7 +43,7 @@ imports:
 - name: github.com/spf13/viper
   version: 5ed0fc31f7f453625df314d8e66b9791e8d13003
 - name: github.com/yuta-masano/go-tempedit
-  version: 857d4d9d216f31134050d1ed180c94654bc069f8
+  version: ff9bb4ff434aed091e74d89e15410ad2927b42bf
 - name: golang.org/x/sys
   version: d75a52659825e75fff6158388dddc6a5b04f9ba5
   subpackages:
