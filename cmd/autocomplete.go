@@ -34,6 +34,13 @@ or just source them in directly:
 			return errors.New("Only Bash is supported for now")
 		}
 
+		addCmd.ValidArgs = func() (args []string) {
+			for _, v := range cfg.Projects {
+				args = append(args, v)
+			}
+			return args
+		}()
+
 		err := cmd.Root().GenBashCompletionFile(autocompleteTarget)
 		if err != nil {
 			return err
