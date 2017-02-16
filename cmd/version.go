@@ -18,7 +18,7 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "show program's version information and exit",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("version: %s\nrevision: %s\nwith: %s\n",
+		fmt.Printf(" version: %s\nrevision: %s\n    with: %s\n",
 			buildVersion, buildRevision, buildWith)
 	},
 }
