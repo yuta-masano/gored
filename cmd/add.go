@@ -126,7 +126,7 @@ func createIssue(issueTextLine []string, cl redmineder) (*redmine.Issue, error) 
 
 func sendClipboard(addedIssue *redmine.Issue) error {
 	buff := new(bytes.Buffer)
-	fmt.Fprintf(buff, " [%s #%d: %s - %s - Redmine]\n %s/issues/%d\n",
+	fmt.Fprintf(buff, "[%s #%d: %s - %s - Redmine]\n%s/issues/%d\n",
 		addedIssue.Tracker.Name, addedIssue.Id, addedIssue.Subject, addedIssue.Project.Name,
 		cfg.Endpoint, addedIssue.Id)
 	return clipboard.WriteAll(buff.String())
