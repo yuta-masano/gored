@@ -18,7 +18,8 @@ const (
 
 // RootCmd represents the base command when called without any subcommands.
 var RootCmd = &cobra.Command{
-	Use: "gored",
+	Use:          "gored",
+	SilenceUsage: true,
 }
 
 func init() {
