@@ -6,7 +6,6 @@ type config struct {
 	Endpoint   string
 	Apikey     string
 	Editor     string
-	ProjectID  int
 	Projects   map[int]string
 	Trackers   []string
 	Priorities []string

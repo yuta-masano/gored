@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/mattn/go-redmine"
+	"github.com/spf13/viper"
 )
 
 func TestCensor(t *testing.T) {
@@ -62,7 +63,7 @@ func TestCreateIssue(t *testing.T) {
 
 	tracker = "tracker1"
 	priority = "priority0"
-	projectID = 111
+	viper.Set("ProjectID", 111)
 	cl := new(fakeRedmineCL)
 
 	testCases := []struct {
