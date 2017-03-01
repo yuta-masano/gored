@@ -23,11 +23,11 @@ var addCmd = &cobra.Command{
 	Short: `add a new issue`,
 	Long: `Create a new issue on Redmine using your clipboard text allowing you to edit
 the issue subject and description via your editor.
-After that, send the added issue page's title and URL into your clipboard.`,
+And then, send the title and URL of added issue page into your clipboard.`,
 	RunE: runAdd,
 }
 
-// Flags
+// Flags.
 var (
 	tracker  string
 	priority string
