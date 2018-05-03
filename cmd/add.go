@@ -36,8 +36,8 @@ var (
 func init() {
 	RootCmd.AddCommand(addCmd)
 
-	addCmd.Flags().StringVarP(&tracker, "tracker", "t", "", "choose your tracker")
-	addCmd.Flags().StringVarP(&priority, "priority", "p", "", "choose your priority")
+	addCmd.Flags().StringVarP(&tracker, "tracker", "t", "", "choose your tracker (defalut a first element of Trackers list in config file)")
+	addCmd.Flags().StringVarP(&priority, "priority", "p", "", "choose your priority (defalut a first element of Priorities list in config file)")
 }
 
 func censor(clipboardText string) string {
@@ -147,7 +147,7 @@ func addIssue(clipboardText string) error {
 
 func runAdd(cmd *cobra.Command, args []string) error {
 	if len(args) < 1 {
-		return errors.New("specify a project to add a new issue")
+		return errors.New("too few argements: specify a project to add a new issue")
 	}
 	var err error
 	prjID, err := cfg.getProjetID(args[0])

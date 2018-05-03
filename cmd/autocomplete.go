@@ -12,7 +12,7 @@ var autocompleteCmd = &cobra.Command{
 	Short: "generate a shell autocompletion script for gored",
 	Long: `Generates a shell autocompletion script for gored.
 
-NOTE: This should work for *nix systems with Bash installed.
+NOTE: This only works for *nix systems with Bash installed.
 
 By default, the file is written directly to /etc/bash_completion.d
 for convenience, and the command may need superuser rights, e.g.:

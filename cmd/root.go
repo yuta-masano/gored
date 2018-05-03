@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// 終了ステータスコード。
+// exit status code
 const (
 	exitOK int = iota
 	exitNG
@@ -23,8 +23,10 @@ var RootCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.PersistentFlags().StringVarP(&cfgFilePath,
-		"config-file", "f",
+	RootCmd.PersistentFlags().StringVarP(
+		&cfgFilePath,
+		"config-file",
+		"f",
 		func() (defaultCfgFilePath string) {
 			var cfgDir string
 			if runtime.GOOS == "windows" {
@@ -34,7 +36,8 @@ func init() {
 			}
 			return filepath.Join(cfgDir, "config.yml")
 		}(),
-		"path to the config file")
+		"path to the config file",
+	)
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -42,7 +45,7 @@ func init() {
 func Execute() int {
 	viper.SetConfigFile(cfgFilePath)
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Fprintf(os.Stderr, "failed in reading config file: %s\n", err)
+		fmt.Fprintf(os.Stderr, "failed in reading the config file: %s\n", err)
 		return exitNG
 	}
 	if err := viper.Unmarshal(&cfg); err != nil {
@@ -51,7 +54,7 @@ func Execute() int {
 	}
 	for _, param := range []string{"Endpoint", "Apikey", "Trackers", "Priorities"} {
 		if !viper.IsSet(param) {
-			fmt.Fprintf(os.Stdout, "failed in reading config parameter: %s must be specified\n", param)
+			fmt.Fprintf(os.Stdout, "failed in reading config parameters: %s must be specified\n", param)
 			return exitNG
 		}
 	}

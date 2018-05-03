@@ -54,8 +54,8 @@ help: ## show help
 	@echo 'USAGE: make [target]'
 	@echo
 	@echo 'TARGETS:'
-	@grep -E '^[-_: a-zA-Z0-9]+##' $(MAKEFILE_LIST) \
-		| sed 's/:[-_ a-zA-Z0-9]\+/:/'              \
+	@grep -E '^[^#]+##' $(MAKEFILE_LIST) \
+		| sed 's/:[^#]\+/:/'             \
 		| column -t -s ':#'
 
 # install development tools

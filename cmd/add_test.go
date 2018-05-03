@@ -61,8 +61,10 @@ func (f fakeRedmineCL) CreateIssue(issue redmine.Issue) (*redmine.Issue, error) 
 func TestCreateIssue(t *testing.T) {
 	t.Parallel()
 
+	// Flag options.
 	tracker = "tracker1"
 	priority = "priority0"
+	// ProjectID is a gloval internal valiable retirived from arg[0]
 	viper.Set("ProjectID", 111)
 	cl := new(fakeRedmineCL)
 
